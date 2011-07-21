@@ -90,6 +90,15 @@ class ImageFunctions {
 	   var $image;
 	   var $image_type;
 	    
+	   function set_image($image, $image_type) {
+	   	   $this->image = $image;
+	   	   $this->image_type = $image_type;
+	   }
+	   
+	   function get_image() {
+	   	   return $this->image;
+	   }
+	    
 	   function load($filename) {
 		   $image_info = getimagesize($filename);
 		   $this->image_type = $image_info[2];

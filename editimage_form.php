@@ -1,35 +1,81 @@
-<?php $upload_max_filesize = get_max_upload_file_size($CFG->maxbytes); ?>
+<?php
 
-<script type="text/javascript">
-function checkvalue(elm,formname) {
-    var el = document.getElementById(elm);
-    if(!el.value) {
-        alert("Nothing to do!");
-        el.focus();
-        return false;
+require_once("$CFG->libdir/formslib.php");
+
+class image_form extends moodleform {
+    function definition() {
+        $mform = $this->_form;
+        $instance = $this->_customdata;
+
+        // visible elements
+        //$mform->addElement('filemanager', 'newfile', get_string('uploadafile'));
+        //$mform->addElement('filemanager', 'files_filemanager', get_string('uploadafile'), null, $instance['options']);
+        $mform->addElement('filepicker', 'assignment_file', get_string('uploadafile'), null, $instance['options']);
+
+        // hidden params
+        $mform->addElement('hidden', 'contextid', $instance['contextid']);
+        $mform->setType('contextid', PARAM_INT);
+        $mform->addElement('hidden', 'userid', $instance['userid']);
+        $mform->setType('userid', PARAM_INT);
+        $mform->addElement('hidden', 'sectionid', $instance['sectionid']);
+        $mform->setType('sectionid', PARAM_INT);         
+        $mform->addElement('hidden', 'action', 'uploadfile');
+        $mform->setType('action', PARAM_ALPHA);
+
+        // buttons
+        $this->add_action_buttons(true, get_string('savechanges', 'admin'));
     }
 }
-</script>
-<form id="theform" method="post" enctype="multipart/form-data" action="editimage.php">
-<table summary="Summary of image" cellpadding="5" class="boxaligncenter">
-<tr valign="top">
-    <td align="right">
-      <p><b><?php print_string("image","format_grid") ?></b></p>
-    </td>
-    <td>
-          <input type="file" name="userfile" id="userfile" size="35" />
-    </td>
-</tr>
-<tr>
-    <td colspan="2" align="center">
-          <input type="hidden" name="MAX_FILE_SIZE" value="<?php print($upload_max_filesize);?>" />
-          <input type="hidden" name="id" VALUE="<?php print($id);?>" />
-          <input type="hidden" name="wdir" value="" />
-          <input type="hidden" name="action" value="upload" />
-          <input type="hidden" name="sesskey" value="<?php p($USER->sesskey) ?>" />
-          <input name="save" type="submit" id="save" onclick="return checkvalue('userfile','uploader');" value="Save" /> 
-          
-    </td>
-</tr>
-</table>
-</form>
+
+
+?>
+<?php
+
+/*
+require_once("$CFG->libdir/formslib.php");
+ 
+class image_form extends moodleform {
+ 
+    function definition() {
+        global $USER, $CFG, $DB;
+
+        $mform = $this->_form;
+
+        $course      = $this->_customdata['course']; // this contains the data of this form
+        $data      	 = $this->_customdata['data'];
+        $options     = $this->_customdata['options'];
+
+         				
+ 		
+		//$mform->addElement(type, id, title_string, ?, options e.g: array('maxbytes' => $maxbytes, 'accepted_types' => '*')); 
+		$mform->addElement('filemanager', 'userfile_filemanager', get_string('file'), null, $options);
+        $mform->addElement('hidden', 'returnurl', $data->returnurl);
+		
+        $this->add_action_buttons(true, get_string('savechanges'));
+        $this->set_data($data);
+        
+        
+        
+*/
+/*
+        $mform = $this->_form;
+
+        $data    = $this->_customdata['data'];
+        $options = $this->_customdata['options'];
+
+        $mform->addElement('filemanager', 'files_filemanager', get_string('files'), null, $options);
+        $mform->addElement('hidden', 'returnurl', $data->returnurl);
+
+        $this->add_action_buttons(true, get_string('savechanges'));
+
+        $this->set_data($data); 
+*/       
+/*
+		
+    }                           // Close the function
+
+}                               // Close the class
+*/
+
+
+?>
