@@ -53,19 +53,19 @@ function new_activity($section, $course, $mods) {
     }
     
     $htmlarray = array();
-    $sectionmods = explode(",", $section->sequence);
-    foreach($sectionmods as $modnumber) {
-        $mod = $mods[$modnumber];
-        if (file_exists($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php')) {
-            include_once($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php');
-            $fname = $mod->modname.'_print_overview';
-            if (function_exists($fname)) {
-                $fname(array($course->id => $course),$htmlarray);
+    if (!empty($section->sequence)) {
+        $sectionmods = explode(",", $section->sequence);
+        foreach($sectionmods as $modnumber) {
+            $mod = $mods[$modnumber];
+            if (file_exists($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php')) {
+                include_once($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php');
+                $fname = $mod->modname.'_print_overview';
+                if (function_exists($fname)) {
+                    $fname(array($course->id => $course),$htmlarray);
+                }
             }
         }
-
     }
-    
     if(!empty($htmlarray)) {
         return true;
     }
