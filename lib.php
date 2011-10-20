@@ -1,6 +1,97 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
 //
-function grid_format_get_icon(&$course, $sectionid, $sectionnumber = 0) {
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This file contains general functions for the course format Topic
+ *
+ * @since 2.0
+ * @package moodlecore
+ * @copyright 2009 Sam Hemelryk
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+
+/**
+ * Indicates this format uses sections.
+ *
+ * @return bool Returns true
+ */
+function callback_topics_uses_sections() {
+    return true;
+}
+
+/**
+ * Used to display the course structure for a course where format=topic
+ *
+ * This is called automatically by {@link load_course()} if the current course
+ * format = weeks.
+ *
+ * @param array $path An array of keys to the course node in the navigation
+ * @param stdClass $modinfo The mod info object for the current course
+ * @return bool Returns true
+ */
+function callback_topics_load_content(&$navigation, $course, $coursenode) {
+    return $navigation->load_generic_course_sections($course, $coursenode, 'topics');
+}
+
+/**
+ * The string that is used to describe a section of the course
+ * e.g. Topic, Week...
+ *
+ * @return string
+ */
+function callback_topics_definition() {
+    return get_string('topic');
+}
+
+/**
+ * The GET argument variable that is used to identify the section being
+ * viewed by the user (if there is one)
+ *
+ * @return string
+ */
+function callback_topics_request_key() {
+    return 'topic';
+}
+
+function callback_topics_get_section_name($course, $section) {
+    // We can't add a node without any text
+    if (!empty($section->name)) {
+        return $section->name;
+    } else if ($section->section == 0) {
+        return get_string('section0name', 'format_topics');
+    } else {
+        return get_string('topic').' '.$section->section;
+    }
+}
+
+/**
+ * Declares support for course AJAX features
+ *
+ * @see course_format_ajax_support()
+ * @return stdClass
+ */
+function callback_topics_ajax_support() {
+    $ajaxsupport = new stdClass();
+    $ajaxsupport->capable = true;
+    $ajaxsupport->testedbrowsers = array('MSIE' => 6.0, 'Gecko' => 20061111, 'Safari' => 531, 'Chrome' => 6.0);
+    return $ajaxsupport;
+}
+
+function grid_format_get_icon($course, $sectionid, $sectionnumber = 0) {
     global $CFG, $DB;
         
     if (!$sectionid) {
@@ -53,26 +144,14 @@ function new_activity($section, $course, $mods) {
     }
     
     $htmlarray = array();
-    if (!empty($section->sequence)) {
-        $sectionmods = explode(",", $section->sequence);
-        foreach($sectionmods as $modnumber) {
-            $mod = $mods[$modnumber];
-            if (file_exists($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php')) {
-                include_once($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php');
-                $fname = $mod->modname.'_print_overview';
-                if (function_exists($fname)) {
-                    $fname(array($course->id => $course),$htmlarray);
-                }
-            }
-        }
-    }
+        
     if(!empty($htmlarray)) {
         return true;
     }
     //Checks logs to see if section has been updated since last login.
     //This cause semi-unexpected behaviour if you're already logged in when it happens
     //in that it will show up for your current log in AND the following log in.
-    $sql = "SELECT url FROM $CFG->prefix"."log WHERE course = :courseid AND time > :lastaccess AND action = :edit";
+    $sql = "SELECT DISTINCT(url) FROM $CFG->prefix"."log WHERE course = :courseid AND time > :lastaccess AND action = :edit";
     $params = array("courseid" => $course->id, "lastaccess"=>$course->lastaccess, "edit"=>"editsection");
     $activity = $DB->get_records_sql($sql, $params);
     foreach($activity as $url_obj) {
@@ -229,6 +308,6 @@ function get_tag_name($html, $start, $end) {
 
     $tag_name = substr($html, $start, ($end_name_pos - $start));
     return $tag_name;
-}   
-    
+}
+ 
 ?>

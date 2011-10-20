@@ -18,13 +18,8 @@ $string['titlealreadyexist'] = '$a title is already exists. Please change the ti
 $string['updatesection'] = 'Overwrote section';
 $string['topicoutline'] = 'Topic';
 
-$string['students'] = 'Students';
-$string['weekhide'] = 'Hide';
-$string['weekshow'] = 'weekshow';
-$string['moveup'] = 'moveup';
-$string['movedown'] = 'movedown';
-$string['gridoutline'] = 'Grid Outline';
 
-$string['section0name'] = 'General';
+
+//$string['section0name'] = 'General';
 
 ?>
