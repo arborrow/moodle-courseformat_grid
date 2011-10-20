@@ -9,9 +9,11 @@ ul.icons {
 }
 
 #iconContainer {
-    width:              100%;
+    width:              510px;
     overflow:           auto;
     padding:            0 0 50px 0;
+    margin-left: 20px;
+    margin-right: auto;
 }
 
 ul.icons li {
@@ -27,7 +29,7 @@ ul.icons li {
 }
 
 ul.icons li:hover {
-    background-color:   #ddd;
+    background-color:   #f1f2f2;
     color:              #333;
 }
 
@@ -57,10 +59,10 @@ ul.icons li .image_holder {
     height:             140px;
     overflow:           hidden;
     border:             1px solid #ddd;
-    background-color:   #ddd;
+    background-color:   #f1f2f2;
 }
 ul.icons li:hover .image_holder {
-    border:             1px solid #ddd;
+    border:             1px solid #dededf;
 }
 ul.icons li img { 
     margin-top:         0;
@@ -98,6 +100,44 @@ div#shadebox_overlay {
 
 #shadebox_content {
     background:         #fff;
+    border: solid 2px #557cc5;
+}
+
+#shadebox_content .activity{
+	list-style: none;
+	border-bottom: 1px dashed #ccc;
+	padding-bottom: 4px;
+	padding-top: 2px;
+}
+
+#shadebox_content ul li{
+	list-style: none;
+}
+
+#shadebox_content ul li ul li{
+	list-style: circle;
+	border-bottom: none;
+	padding-bottom: 4px;
+	padding-top: 2px;
+}
+
+h3.sectionname {
+	color: #557cc5 !important;
+	background: transparent !important;
+	font-weight: norma !important;
+	font-size: 1.9em;
+	border: 0px none !important;
+	border-bottom: dashed 1px #557cc5 !important;
+	padding: 0px !important;
+	padding-bottom: 5px !important;
+	margin-bottom: 5px;
+}
+
+ul.topics li#section-0, 
+ul.weeks li#section-0 {
+	background: transparent;
+	border: 0px none;
+	margin-left: -20px;
 }
 
 #shadebox_close {
@@ -106,3 +146,9 @@ div#shadebox_overlay {
     right:              -10px;
     cursor:             pointer;
 }
+
+/* @group My Group */
+
+
+
+/* @end */

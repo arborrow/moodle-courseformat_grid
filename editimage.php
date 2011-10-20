@@ -8,7 +8,7 @@ require_once('./editimage_form.php');
 require_once("./imagelib.php");
 
 /* Script settings */
-$image_width = 218;
+$image_width = 210;
 $image_height = 140;
 
 /* Page parameters */
