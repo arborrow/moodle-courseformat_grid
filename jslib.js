@@ -17,7 +17,7 @@ function hide_sections() {
     update_shadebox();
     window.onresize = function() {
         update_shadebox();
-    }    
+    }
 }
 
 function select_topic(evt, topic_no) {
@@ -54,10 +54,10 @@ var shadebox_open = false;
 
 function initialize_shadebox() {
     hide_shadebox();
-    
+
     document.getElementById('shadebox_overlay').style.display="";
     document.body.appendChild(document.getElementById('shadebox'));
-    
+
     var content = document.getElementById('shadebox_content');
     content.style.position = 'absolute';
     content.style.width = '800px';
@@ -142,6 +142,6 @@ function update_shadebox() {
     var overlay = document.getElementById("shadebox_overlay");
     var pagesize = get_page_size();
     overlay.style.height = pagesize[1] + "px";
-    
+
 
 }

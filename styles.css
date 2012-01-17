@@ -17,7 +17,7 @@ h3.sectionname {
 	padding-bottom: 5px !important;
 }
 
-.course-content ul.topics li#section-0, 
+.course-content ul.topics li#section-0,
 .course-content ul.weeks li#section-0 {
 	background: transparent;
 	border: 0px none;
@@ -87,7 +87,7 @@ h3.sectionname {
 .course-content ul.icons li:hover .image_holder {
     border:             1px solid #dededf;
 }
-.course-content ul.icons li img { 
+.course-content ul.icons li img {
     margin-top:         0;
 }
 
