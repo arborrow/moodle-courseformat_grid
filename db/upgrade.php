@@ -27,12 +27,15 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
 
     if ($result && $oldversion < 2012011701) {
         // Rename the tables
-        $table = new XMLDBTable('course_grid_icon');
-        $dbman->rename_table($table, 'format_grid_icon');
+        if ($dbman->table_exists('course_grid_icon')) {
+            $table = new XMLDBTable('course_grid_icon');
+            $dbman->rename_table($table, 'format_grid_icon');
+        }
 
-        // Rename the tables
-        $table = new XMLDBTable('course_grid_summary');
-        $dbman->rename_table($table, 'format_grid_summary');
+        if ($dbman->table_exists('course_grid_summary')) {
+            $table = new XMLDBTable('course_grid_summary');
+            $dbman->rename_table($table, 'format_grid_summary');
+        }
 
         upgrade_plugin_savepoint(true, '2012011701', 'format', 'grid');
     }
