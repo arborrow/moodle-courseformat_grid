@@ -29,7 +29,7 @@
  *
  * @return bool Returns true
  */
-function callback_topics_uses_sections() {
+function callback_grid_uses_sections() {
     return true;
 }
 
@@ -43,7 +43,7 @@ function callback_topics_uses_sections() {
  * @param stdClass $modinfo The mod info object for the current course
  * @return bool Returns true
  */
-function callback_topics_load_content(&$navigation, $course, $coursenode) {
+function callback_grid_load_content(&$navigation, $course, $coursenode) {
     return $navigation->load_generic_course_sections($course, $coursenode, 'topics');
 }
 
@@ -53,7 +53,7 @@ function callback_topics_load_content(&$navigation, $course, $coursenode) {
  *
  * @return string
  */
-function callback_topics_definition() {
+function callback_grid_definition() {
     return get_string('topic');
 }
 
@@ -63,11 +63,11 @@ function callback_topics_definition() {
  *
  * @return string
  */
-function callback_topics_request_key() {
+function callback_grid_request_key() {
     return 'topic';
 }
 
-function callback_topics_get_section_name($course, $section) {
+function callback_grid_get_section_name($course, $section) {
     // We can't add a node without any text
     if (!empty($section->name)) {
         return $section->name;
@@ -84,7 +84,7 @@ function callback_topics_get_section_name($course, $section) {
  * @see course_format_ajax_support()
  * @return stdClass
  */
-function callback_topics_ajax_support() {
+function callback_grid_ajax_support() {
     $ajaxsupport = new stdClass();
     $ajaxsupport->capable = true;
     $ajaxsupport->testedbrowsers = array('MSIE' => 6.0, 'Gecko' => 20061111, 'Safari' => 531, 'Chrome' => 6.0);
@@ -97,12 +97,12 @@ function grid_format_get_icon($course, $sectionid, $sectionnumber = 0) {
     if (!$sectionid) {
         return false;
     }
-    if (! $sectionicon = $DB->get_record('course_grid_icon', array('sectionid' => $sectionid))) {
+    if (! $sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
 
         $newicon                = new stdClass();
         $newicon->sectionid     = $sectionid;
                
-        if (!$newicon->id = $DB->insert_record('course_grid_icon', $newicon)) {
+        if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon)) {
             error('Could not create icon. Grid format database is not ready. An admin must visit the notification section.');
         }
         $sectionicon = false;
@@ -115,13 +115,13 @@ function grid_format_get_icon($course, $sectionid, $sectionnumber = 0) {
 function get_summary_visibility($course) {
     
     global $CFG, $DB;
-    if (! $summary_status = $DB->get_record('course_grid_summary', array('course_id' => $course))) {
+    if (! $summary_status = $DB->get_record('format_grid_summary', array('course_id' => $course))) {
 
         $new_status                = new stdClass();
         $new_status->course_id     = $course;
         $new_status->show_summary  = 1;
                
-        if (!$new_status->id = $DB->insert_record('course_grid_summary', $new_status)) {
+        if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
             error('Could not set summary status. Grid format database is not ready. An admin must visit the notification section.');
         }
         $summary_status = $new_status;
@@ -144,6 +144,7 @@ function new_activity($section, $course, $mods) {
     }
     
     $htmlarray = array();
+    $sectionmods = explode(",", $section->sequence);
         
     if(!empty($htmlarray)) {
         return true;
@@ -151,7 +152,7 @@ function new_activity($section, $course, $mods) {
     //Checks logs to see if section has been updated since last login.
     //This cause semi-unexpected behaviour if you're already logged in when it happens
     //in that it will show up for your current log in AND the following log in.
-    $sql = "SELECT DISTINCT(url) FROM $CFG->prefix"."log WHERE course = :courseid AND time > :lastaccess AND action = :edit";
+    $sql = "SELECT url FROM $CFG->prefix"."log WHERE course = :courseid AND time > :lastaccess AND action = :edit";
     $params = array("courseid" => $course->id, "lastaccess"=>$course->lastaccess, "edit"=>"editsection");
     $activity = $DB->get_records_sql($sql, $params);
     foreach($activity as $url_obj) {

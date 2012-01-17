@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="course_grid_icon" COMMENT="Icon images for each topic, used by the grid course format" NEXT="course_grid_summary">
+    <TABLE NAME="format_grid_icon" COMMENT="Icon images for each topic, used by the grid course format" NEXT="format_grid_summary">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="imagepath"/>
         <FIELD NAME="imagepath" TYPE="text" LENGTH="small" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="sectionid"/>
@@ -17,7 +17,7 @@
         <INDEX NAME="section" UNIQUE="true" FIELDS="sectionid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="course_grid_summary" COMMENT="A table to hold a single flag on whether to show section 0 above the grid or in the grid" PREVIOUS="course_grid_icon">
+    <TABLE NAME="format_grid_summary" COMMENT="A table to hold a single flag on whether to show section 0 above the grid or in the grid" PREVIOUS="format_grid_icon">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="show_summary"/>
         <FIELD NAME="show_summary" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Flag whether the course administrator wants section 0 to be shown or hidden in the grid" PREVIOUS="id" NEXT="course_id"/>

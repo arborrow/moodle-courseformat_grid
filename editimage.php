@@ -59,7 +59,7 @@ if ($mform->is_cancelled()) { //Someone has hit the 'cancel' button
              'timecreated'=>time(), 'timemodified'=>time());
 
             $fs->create_file_from_pathname($file_record, $temp_path);
-            $DB->set_field("course_grid_icon", "imagepath", $newfilename,  array("sectionid" => $sectionid));
+            $DB->set_field("format_grid_icon", "imagepath", $newfilename,  array("sectionid" => $sectionid));
             
             unlink($temp_path);
             redirect($CFG->wwwroot . "/course/view.php?id=".$course->id);
