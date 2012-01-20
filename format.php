@@ -28,13 +28,8 @@ if ($editing) {
 
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
 
-// Define the location of the JS file
-$jsloc = $CFG->wwwroot.'/course/format/grid/jslib.js';
-if ($PAGE->requires->is_head_done()) {
-    echo html_writer::script('', $jsloc);
-} else {
-    $PAGE->requires->js(new moodle_url($jsloc));
-}
+// Include the JS file
+echo html_writer::script('', $CFG->wwwroot.'/course/format/grid/jslib.js');
 
 /* Internet Explorer min-width fix. (See theme/standard/styles_layout.css: min-width for Firefox.)
    Window width: 800px, Firefox 763px, IE 752px. (Window width: 640px, Firefox 602px, IE 588px.)
