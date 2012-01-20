@@ -1,12 +1,12 @@
+<style type="text/css" media="screen">
+/* <![CDATA[ */
+    @import url(<?php echo $CFG->wwwroot ?>/course/format/grid/grid.css);
+/* ]]> */
+</style>
+
 <?php // $Id: format.php
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once('./lib.php');     // for grid course format.
-
-$path_base = '/course/format/grid';
-$path_css  = $path_base . '/styles';
-$path_js   = $path_base . '/js';
+require_once(dirname(__FILE__) . '/lib.php');     // for grid course format.
 
 $streditsummary  = get_string('editsummary');
 $stradd          = get_string('add');
@@ -27,7 +27,6 @@ if ($editing) {
 }
 
 $context = get_context_instance(CONTEXT_COURSE, $course->id);
-<<<<<<< HEAD
 
 // Include the JS file
 echo html_writer::script('', $CFG->wwwroot.'/course/format/grid/jslib.js');
@@ -36,20 +35,15 @@ echo html_writer::script('', $CFG->wwwroot.'/course/format/grid/jslib.js');
    Window width: 800px, Firefox 763px, IE 752px. (Window width: 640px, Firefox 602px, IE 588px.)
 */
 
-=======
-echo html_writer::script('', 
-	new moodle_url($path_js . '/jslib.js')); 
->>>>>>> minor code formatting changes
 ?>
-<style type="text/css" media="screen">
-/* <![CDATA[ */
-    @import url(<?php echo $path_css.'/base.css'; ?>);
-/* ]]> */
-</style>
+
 <!--[if IE]>
-    <link rel="stylesheet" type="text/css" href="<?php echo $path_css.'/ie-hacks.css'; ?>" media="screen" />
-<![endif]-->  
+  <style type="text/css">
+  .topicscss-format { width: expression(document.body.clientWidth < 800 ? "752px" : "auto"); }
+  </style>
+<![endif]-->
 <?php
+/// Layout the whole page as three big columns (was, id="layout-table")
 echo '<div class="topicscss-format">';
 
 
@@ -164,7 +158,7 @@ while ($section <= $course->numsections) {
             echo '<img src="'.$url = $CFG->wwwroot . '/pluginfile.php/' . $context->id . '/course/section/' . $thissection->id .
             '/' . $sectionicon->imagepath .'"/>';
         } else if($section == 0) {
-            echo '<img src="'.$url = $CFG->wwwroot.'/course/format/grid/images/info.png">';
+            echo '<img src="'.$url = $CFG->wwwroot.'/course/format/grid/info.png">';
         }
 /*
         if($sectionicon->imagepath) {
@@ -198,7 +192,7 @@ echo '<div id="shadebox">';
 echo '<div id="shadebox_overlay" style="display:none;" onclick="toggle_shadebox();"></div>';
 //echo '<div id="shadebox_overlay" style="display:none;"></div>';
 echo '<div id="shadebox_content">';
-echo '<img id="shadebox_close" style="display: none;" src="'.$CFG->wwwroot.'/course/format/grid/images/close.png" onclick="toggle_shadebox();">';
+echo '<img id="shadebox_close" style="display: none;" src="'.$CFG->wwwroot.'/course/format/grid/close.png" onclick="toggle_shadebox();">';
 
 echo "<ul class='topics'>\n";
 
