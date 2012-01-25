@@ -64,7 +64,7 @@ ul.icons li .image_holder {
 ul.icons li:hover .image_holder {
     border:             1px solid #dededf;
 }
-ul.icons li img { 
+ul.icons li img {
     margin-top:         0;
 }
 
@@ -100,7 +100,7 @@ div#shadebox_overlay {
 
 #shadebox_content {
     background:         #fff;
-    border: solid 2px #557cc5;
+    border: solid 2px #a71e38;
 }
 
 #shadebox_content .activity{
@@ -122,22 +122,19 @@ div#shadebox_overlay {
 }
 
 h3.sectionname {
-	color: #557cc5 !important;
+	color: #a71e38 !important;
 	background: transparent !important;
 	font-weight: norma !important;
 	font-size: 1.9em;
 	border: 0px none !important;
-	border-bottom: dashed 1px #557cc5 !important;
+	border-bottom: dashed 1px #a71e38 !important;
 	padding: 0px !important;
 	padding-bottom: 5px !important;
-	margin-bottom: 5px;
 }
 
-ul.topics li#section-0, 
-ul.weeks li#section-0 {
+ul.topics li#section-0, ul.weeks li#section-0 {
 	background: transparent;
 	border: 0px none;
-	margin-left: -20px;
 }
 
 #shadebox_close {
@@ -146,9 +143,3 @@ ul.weeks li#section-0 {
     right:              -10px;
     cursor:             pointer;
 }
-
-/* @group My Group */
-
-
-
-/* @end */

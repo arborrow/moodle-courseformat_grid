@@ -1,8 +1,11 @@
 <?php
-    
+
 function xmldb_format_grid_upgrade($oldversion = 0) {
+
+    global $DB;
+    $dbman = $DB->get_manager();
     $result = true;
-    
+
     if ($result && $oldversion < 2011041802) {
 
     /// Define table course_grid_summary to be created
@@ -18,7 +21,34 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
 
     /// Launch create table for course_grid_summary
         $result = $result && create_table($table);
+
+        upgrade_plugin_savepoint(true, '2011041802', 'format', 'grid');
     }
-    
-    return $result;    
+
+    if ($result && $oldversion < 2012011701) {
+        // Rename the tables
+        if ($dbman->table_exists('course_grid_icon')) {
+            $table = new XMLDBTable('course_grid_icon');
+            if (!$dbman->table_exists('format_grid_icon')) {
+                $dbman->rename_table($table, 'format_grid_icon');
+            } else {
+                // May as well tidy up the db
+                $dbman->drop_table($table);
+            }
+        }
+
+        if ($dbman->table_exists('course_grid_summary')) {
+            $table = new XMLDBTable('course_grid_summary');
+            if (!$dbman->table_exists('format_grid_summary')) {
+                $dbman->rename_table($table, 'format_grid_summary');
+            } else {
+                // May as well tidy up the db
+                $dbman->drop_table($table);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, '2012011701', 'format', 'grid');
+    }
+
+    return $result;
 }
