@@ -31,6 +31,9 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
             $table = new XMLDBTable('course_grid_icon');
             if (!$dbman->table_exists('format_grid_icon')) {
                 $dbman->rename_table($table, 'format_grid_icon');
+            } else {
+                // May as well tidy up the db
+                $dbman->drop_table($table);
             }
         }
 
@@ -38,6 +41,9 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
             $table = new XMLDBTable('course_grid_summary');
             if (!$dbman->table_exists('format_grid_summary')) {
                 $dbman->rename_table($table, 'format_grid_summary');
+            } else {
+                // May as well tidy up the db
+                $dbman->drop_table($table);
             }
         }
 
