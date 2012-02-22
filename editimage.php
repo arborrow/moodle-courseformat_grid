@@ -4,7 +4,10 @@
 require_once("../../../config.php");
 require_once($CFG->dirroot.'/repository/lib.php');
 <<<<<<< HEAD
+<<<<<<< HEAD
 require_once("./lib.php");
+=======
+>>>>>>> master
 =======
 >>>>>>> master
 require_once('./editimage_form.php');
@@ -115,3 +118,6 @@ echo $OUTPUT->box_start('generalbox');
 $mform->display();
 echo $OUTPUT->box_end();
 echo $OUTPUT->footer();
+=======
+echo $OUTPUT->footer();
+>>>>>>> master
