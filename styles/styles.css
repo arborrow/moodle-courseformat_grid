@@ -32,7 +32,7 @@ h3.sectionname {
 }
 
 .course-content #iconContainer {
-    width:              510px;
+    width:              100%;
     overflow:           auto;
     padding:            0 0 50px 0;
     margin-left: 20px;

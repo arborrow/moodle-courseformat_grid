@@ -1,18 +1,17 @@
-<?php // $Id: mod.php,v 1.127.2.3 2009-02-05 13:41:18 stronk7 Exp $
-	
-require('../../../config.php');
+<?php // $Id$
+
+require_once('../../../config.php');
 require_once('../../lib.php');
 require_once('./lib.php');
-    
+
 require_login();
-	
+
 $course = optional_param('course', '', PARAM_INT);
 $showsummary = optional_param('showsummary', 0, PARAM_INT);
 
 //ensure format_grid_summary field status exists
-$summary_status = get_summary_visibility($course);
-	
+$summary_status = _get_summary_visibility($course);
 $DB->set_field('format_grid_summary', 'show_summary', $showsummary, 
-	array('course_id' => $course, 'id' => $summary_status->id));
-	
+    array('course_id' => $course, 'id' => $summary_status->id));
+
 redirect("../../view.php?id=$course");
