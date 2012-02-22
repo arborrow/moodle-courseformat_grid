@@ -117,6 +117,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->box_start('generalbox');
 $mform->display();
 echo $OUTPUT->box_end();
+<<<<<<< HEAD
 echo $OUTPUT->footer();
 =======
 echo $OUTPUT->footer();
