@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -249,13 +249,15 @@ function _make_block_topic0($section, $top) {
     echo html_writer::start_tag('div', array('class'=>'summary'));
 
     if ($top) {
-        echo format_text($thissection->summary,
-            FORMAT_HTML, $summaryformatoptions);
+        $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+		$summarytext = file_rewrite_pluginfile_urls($thissection->summary, 'pluginfile.php', $coursecontext->id, 'course', 'section', $thissection->id);
+		echo format_text($summarytext, FORMAT_HTML, $summaryformatoptions);
     } else {
-        $summarytext = file_rewrite_pluginfile_urls($thissection->summary,
-            'pluginfile.php', $context->id, 'course', 'section', $thissection->id);
+        $summarytext = file_rewrite_pluginfile_urls($thissection->summary, 'pluginfile.php', $coursecontext->id, 'course', 'section', $thissection->id);
 
-        echo format_text($summarytext, $thissection->summaryformat, $summaryformatoptions);        
+        $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+		$summarytext = file_rewrite_pluginfile_urls($thissection->summary, 'pluginfile.php', $coursecontext->id, 'course', 'section', $thissection->id);
+		echo format_text($summarytext, FORMAT_HTML, $summaryformatoptions);        
     }
 
     if ($editing && $has_cap_update) {
@@ -528,8 +530,9 @@ function _make_block_topics() {
 
             echo html_writer::start_tag('div', array('class' => 'summary'));
 
-            echo format_text($thissection->summary,
-                FORMAT_HTML, $summaryformatoptions);
+            $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+			$summarytext = file_rewrite_pluginfile_urls($thissection->summary, 'pluginfile.php', $coursecontext->id, 'course', 'section', $thissection->id);
+			echo format_text($summarytext, FORMAT_HTML, $summaryformatoptions);
 
             if ($editing && $has_cap_update) {
                 echo html_writer::link(
