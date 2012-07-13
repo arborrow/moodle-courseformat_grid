@@ -64,3 +64,7 @@ echo html_writer::script('',
         }
     ?>
 </div>
+<?php
+// Include course format js module
+$PAGE->requires->js('/course/format/grid/format.js');
+?>
