@@ -105,10 +105,10 @@ function _is_empty_text($text) {
             htmlentities($text, 0 /*ENT_HTML401*/, 'UTF-8', true));
 }
 
-function _grid_get_icon($course, $sectionid, $sectionnumber = 0) {
+function _grid_get_icon($courseid, $sectionnumber, $sectionid) {
     global $CFG, $DB;
 
-    if (!$sectionid)
+    if ((!$courseid) || (!$sectionnumber) || (!$sectionid))
         return false;
 
     if (!$sectionicon = $DB->get_record('format_grid_icon',
@@ -116,23 +116,28 @@ function _grid_get_icon($course, $sectionid, $sectionnumber = 0) {
 
         $newicon                = new stdClass();
         $newicon->sectionid     = $sectionid;
+        $newicon->courseid      = $courseid;
+        $newicon->sectionno     = $sectionnumber;
 
         if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon, true)) {
             throw new moodle_exception('invalidrecordid', 'format_grid', '',
                 'Could not create icon. Grid format database is not ready. An admin must visit the notification section.');
         }
         $sectionicon = false;
-    }
+    } else if ($sectionicon->sectionno != $sectionnumber) {
+	    // Has changed so update.
+		$DB->set_field('format_grid_icon', 'sectionno', $sectionnumber, array('sectionid' => $sectionid));
+	}
     return $sectionicon;
 }
 
 //get section icon, if it doesnt exist create it.
 function _get_summary_visibility($course) {
     global $CFG, $DB;
-    if (!$summary_status = $DB->get_record('format_grid_summary', array('course_id' => $course))) {
+    if (!$summary_status = $DB->get_record('format_grid_summary', array('courseid' => $course))) {
         $new_status                = new stdClass();
-        $new_status->course_id     = $course;
-        $new_status->show_summary  = 1;
+        $new_status->courseid     = $course;
+        $new_status->showsummary  = 1;
 
         if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
             throw new moodle_exception('invalidrecordid', 'format_grid', '',
@@ -367,7 +372,7 @@ function _make_block_icon_topics($without_topic0) {
             echo html_writer::start_tag('div', array('class'=>'image_holder'));
 
             $sectionicon = _grid_get_icon(
-                $course, $thissection->id, $section);
+                $course->id, $section, $thissection->id);
 
             if(is_object($sectionicon) && !empty($sectionicon->imagepath)) {
                 echo html_writer::empty_tag('img', array(

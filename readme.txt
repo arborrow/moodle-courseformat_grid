@@ -1,6 +1,9 @@
 ﻿GRID COURSE FORMAT
 ============================
-Package tested in: moodle 2.1+
+Package tested in: moodle 2.3.1+
+
+DEVELOPMENT VERSION - NOT FOR PRODUCTION SITES.
+
 
 QUICK INSTALL
 ==============
