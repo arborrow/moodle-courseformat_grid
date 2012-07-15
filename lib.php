@@ -133,10 +133,7 @@ function _grid_get_icon($courseid, $sectionid) {
                 'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
         }
         $sectionicon = false;
-    } else if ($sectionicon->sectionno != $sectionnumber) {
-	    // Has changed so update.
-		$DB->set_field('format_grid_icon', 'sectionno', $sectionnumber, array('sectionid' => $sectionid));
-	}
+    }
     return $sectionicon;
 }
 
