@@ -39,7 +39,7 @@ class backup_format_grid_plugin extends backup_format_plugin {
         $plugin = $this->get_plugin_element(null, '/course/format', 'grid');
 
         // Create one standard named plugin element (the visible container)
-        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), null, array('showsummary', 'courseid'));
+        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), null, array('showsummary'));  // courseid not required as populated on restore.
 
         // connect the visible container ASAP
         $plugin->add_child($pluginwrapper);
@@ -62,7 +62,7 @@ class backup_format_grid_plugin extends backup_format_plugin {
         $plugin = $this->get_plugin_element(null, $this->get_format_condition(), 'grid');
 
         // Create one standard named plugin element (the visible container)
-        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), null, array('imagepath', 'sectionid', 'courseid', 'sectionno'));
+        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), null, array('imagepath'));   // sectionid and courseid not required as populated on restore.
 
         // connect the visible container ASAP
         $plugin->add_child($pluginwrapper);

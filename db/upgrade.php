@@ -49,7 +49,7 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
         upgrade_plugin_savepoint(true, '2012011701', 'format', 'grid');
     }
 
-    if ($oldversion < 2012071300) {
+    if ($oldversion < 2012071500) {
         // Change to unsigned.
         $table = new xmldb_table('format_grid_summary');
 		
@@ -81,12 +81,6 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
         $dbman->change_field_unsigned($table, $field);
 
         $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1', 'sectionid');
-        // Conditionally launch add field course_id
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('sectionno', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1', 'courseid');
         // Conditionally launch add field course_id
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);

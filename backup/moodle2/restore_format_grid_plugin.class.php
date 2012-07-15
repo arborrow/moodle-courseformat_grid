@@ -56,8 +56,8 @@ class restore_format_grid_plugin extends restore_format_plugin {
 
         $data = (object) $data;
 
-		print('Process Course');
-        print_object($data);
+		//print('Process Course');
+        //print_object($data);
 
         // We only process this information if the course we are restoring to
         // has 'grid' format (target format can change depending of restore options)
@@ -69,16 +69,11 @@ class restore_format_grid_plugin extends restore_format_plugin {
         $data->courseid = $this->task->get_courseid();
 
 		//print_object($data);  //  format_grid_summary.
+        if (!$DB->insert_record('format_grid_summary', $data)) {
+            throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
+        }
 		
-		/*
-        if (isset($data->layoutcolumns)) {
-            // In $CFG->dirroot.'/course/format/topcoll/lib.php'...
-            put_topcoll_setting($data->courseid, $data->layoutelement, $data->layoutstructure, $data->layoutcolumns, $data->tgfgcolour, $data->tgbgcolour, $data->tgbghvrcolour);
-        } else {
-            // Cope with backups from Moodle 2.0, 2.1 and 2.2 versions.
-            global $TCCFG;
-            put_topcoll_setting($data->courseid, $data->layoutelement, $data->layoutstructure, $TCCFG->defaultlayoutcolumns, $data->tgfgcolour, $data->tgbgcolour, $data->tgbghvrcolour);
-        }*/
 
         // No need to annotate anything here
     }
@@ -109,16 +104,15 @@ class restore_format_grid_plugin extends restore_format_plugin {
 	 * This was undertaken by performing a restore and using the url 'http://localhost/moodle23/pluginfile.php/94/course/section/162/mc_fs.png' where
 	 * I had an image called 'mc_fs.png' in section 1 which was id 129 but now 162 as the debug code told me.  '94' is just the context id.  The url was
 	 * originally created in '_make_block_icon_topics' of lib.php of the format.
-	 * At this moment in time I don't now think I need the courseid and sectionno in the table given discoveries on how this works.  Going to leave
-	 * for a while until I see what is what.
+	 * Still need courseid in the 'format_grid_icon' table as it is used in discovering what records to remove when deleting a course, see lib.php 'format_grid_delete_course'.
      */
     public function process_gridsection($data) {
         global $DB;
 
         $data = (object) $data;
 
-		print('Process Section '.$this->task->get_sectionid());
-        print_object($data);
+		//print('Process Section '.$this->task->get_sectionid());
+        //print_object($data);
 
         // We only process this information if the course we are restoring to
         // has 'grid' format (target format can change depending of restore options)
@@ -128,18 +122,12 @@ class restore_format_grid_plugin extends restore_format_plugin {
         }
 
         $data->courseid = $this->task->get_courseid();
+        $data->sectionid = $this->task->get_sectionid();
 
-		//print_object($data);  //  format_grid_icon.
-		
-		/*
-        if (isset($data->layoutcolumns)) {
-            // In $CFG->dirroot.'/course/format/topcoll/lib.php'...
-            put_topcoll_setting($data->courseid, $data->layoutelement, $data->layoutstructure, $data->layoutcolumns, $data->tgfgcolour, $data->tgbgcolour, $data->tgbghvrcolour);
-        } else {
-            // Cope with backups from Moodle 2.0, 2.1 and 2.2 versions.
-            global $TCCFG;
-            put_topcoll_setting($data->courseid, $data->layoutelement, $data->layoutstructure, $TCCFG->defaultlayoutcolumns, $data->tgfgcolour, $data->tgbgcolour, $data->tgbghvrcolour);
-        }*/
+        if (!$DB->insert_record('format_grid_icon', $data, true)) {
+            throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
+        }
 
         // No need to annotate anything here
     }	
