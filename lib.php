@@ -586,8 +586,9 @@ function _make_block_topics() {
 
             echo html_writer::start_tag('div', array('class' => 'summary'));
 
-            echo format_text($thissection->summary,
-                FORMAT_HTML, $summaryformatoptions);
+            $coursecontext = get_context_instance(CONTEXT_COURSE, $course->id);
+            $summarytext = file_rewrite_pluginfile_urls($thissection->summary, 'pluginfile.php', $coursecontext->id, 'course', 'section', $thissection->id);
+            echo format_text($summarytext, FORMAT_HTML, $summaryformatoptions);
 
             if ($editing && $has_cap_update) {
                 echo html_writer::link(
