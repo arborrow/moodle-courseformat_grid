@@ -30,10 +30,6 @@ require_once($CFG->dirroot . '/course/format/grid/lib.php');
 
 class format_grid_renderer extends format_section_renderer_base {
 
-    private $tccolumnwidth = 100; /* Default width in percent of the column(s). */
-    private $tccolumnpadding = 0; /* Defailt padding in pixels of the column(s). */
-    private $mymobiletheme = false; /* As not using the MyMobile theme we can react to the number of columns setting. */
-
     /**
      * Generate the starting container html for a list of sections
      * @return string HTML to output.
