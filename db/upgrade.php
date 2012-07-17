@@ -85,6 +85,8 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
+
+        upgrade_plugin_savepoint(true, '2012071500', 'format', 'grid');		
 	}
 	return true;
 }
