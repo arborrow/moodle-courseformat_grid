@@ -78,9 +78,9 @@ class format_grid_renderer extends format_section_renderer_base {
             $str_edit_summary = get_string('editsummary');
             $url_pic_edit = $this->output->pix_url('t/edit');
         } else {
-		    $url_pic_edit = false;
-			$str_edit_summary = '';
-		}
+            $url_pic_edit = false;
+            $str_edit_summary = '';
+        }
         echo html_writer::start_tag('div', array('class' => 'topicscss-format'));
         echo html_writer::start_tag('div', array('id' => 'middle-column'));
         echo $this->output->skip_link_target();
@@ -173,11 +173,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
         $context = context_course::instance($course->id);
         if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
-            $url = new moodle_url('/course/editsection.php', array('id' => $section->id));
-
-            if ($onsectionpage) {
-                $url->param('sectionreturn', 1);
-            }
+            $url = new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn));
 
             $o.= html_writer::link($url, html_writer::empty_tag('img', array('src' => $this->output->pix_url('t/edit'), 'class' => 'iconsmall edit')), array('title' => get_string('editsummary')));
         }
