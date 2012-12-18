@@ -85,16 +85,19 @@ class format_grid_renderer extends format_section_renderer_base {
         echo html_writer::start_tag('div', array('id' => 'middle-column'));
         echo $this->output->skip_link_target();
 
+        $modinfo = get_fast_modinfo($course);
+        $sections = $modinfo->get_section_info_all();
+
         //start at 1 to skip the summary block
         //or include the summary block if it's in the grid display
         $this->topic0_at_top = $summary_status->showsummary == 1;
         if ($this->topic0_at_top) {
-            $this->topic0_at_top = $this->make_block_topic0(0, $course, $sections, $mods, $modnames, $modnamesused, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
+            $this->topic0_at_top = $this->make_block_topic0(0, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
         }
         echo html_writer::start_tag('div', array('id' => 'iconContainer'));
         echo html_writer::start_tag('ul', array('class' => 'icons'));
         /// Print all of the icons. 
-        $this->make_block_icon_topics($context, $sections, $course, $editing, $has_cap_update, $has_cap_vishidsect, $url_pic_edit);
+        $this->make_block_icon_topics($context, $modinfo, $course, $editing, $has_cap_update, $has_cap_vishidsect, $url_pic_edit);
         echo html_writer::end_tag('ul');
         echo html_writer::end_tag('div');
         echo html_writer::start_tag('div', array('id' => 'shadebox'));
@@ -108,12 +111,12 @@ class format_grid_renderer extends format_section_renderer_base {
 
         /// Print Section 0 with general activities
         if (!$this->topic0_at_top) {
-            $this->make_block_topic0(0, $course, $sections, $mods, $modnames, $modnamesused, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
+            $this->make_block_topic0(0, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
         }
 
         /// Now all the normal modules by topic
         /// Everything below uses "section" terminology - each "section" is a topic/module.
-        $this->make_block_topics($course, $sections, $editing, $has_cap_update, $has_cap_vishidsect, $mods, $modnames, $modnamesused, $str_edit_summary, $url_pic_edit, false);
+        $this->make_block_topics($course, $sections, $modinfo, $editing, $has_cap_update, $has_cap_vishidsect, $str_edit_summary, $url_pic_edit, false);
 
         echo html_writer::end_tag('div');
         echo html_writer::end_tag('div');
@@ -135,7 +138,7 @@ class format_grid_renderer extends format_section_renderer_base {
      * @param int $sectionreturn The section to return to after an action
      * @return string HTML to output.
      */
-    protected function section_header($section, $course, $onsectionpage, $sectionreturn=0) {
+    protected function section_header($section, $course, $onsectionpage, $sectionreturn = 0) {
         global $PAGE;
 
         $o = '';
@@ -185,12 +188,12 @@ class format_grid_renderer extends format_section_renderer_base {
     }
 
     // Grid format specific code
-    private function make_block_topic0($section, $course, $sections, $mods, $modnames, $modnamesused, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, $onsectionpage) {
+    private function make_block_topic0($section, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, $onsectionpage) {
 
         if (!is_numeric($section) || !array_key_exists($section, $sections))
             return false;
 
-        $thissection = $sections[$section];
+        $thissection = $modinfo->get_section_info($section);
         if (!is_object($thissection))
             return false;
 
@@ -226,10 +229,10 @@ class format_grid_renderer extends format_section_renderer_base {
 
         //$this->section_header($thissection, $course, $onsectionpage);
 
-        print_section($course, $thissection, $mods, $modnamesused);
+        print_section($course, $thissection, null, null, true, "100%", false, 0);
 
         if ($editing) {
-            print_section_add_menus($course, $section, $modnames);
+            print_section_add_menus($course, $section, null, false, false, 0);
 
             if ($this->topic0_at_top) {
                 $str_hide_summary = get_string('hide_summary', 'format_grid');
@@ -254,7 +257,7 @@ class format_grid_renderer extends format_section_renderer_base {
         return true;
     }
 
-    private function make_block_icon_topics($context, $sections, $course, $editing, $has_cap_update, $has_cap_vishidsect, $url_pic_edit) {
+    private function make_block_icon_topics($context, $modinfo, $course, $editing, $has_cap_update, $has_cap_vishidsect, $url_pic_edit) {
         global $USER;
 
         $url_pic_new_activity = $this->output->pix_url('new_activity', 'format_grid');
@@ -268,20 +271,7 @@ class format_grid_renderer extends format_section_renderer_base {
         //or include the summary block if it's in the grid display
         for ($section = $this->topic0_at_top ? 1 : 0; $section <= $course->numsections; $section++) {
 
-            if (!empty($sections[$section])) {
-                $thissection = $sections[$section];
-            } else {
-                // This will create a course section if it doesn't exist..
-                $thissection = get_course_section($section, $course->id);
-
-                // The returned section is only a bare database object rather than
-                // a section_info object - we will need at least the uservisible
-                // field in it.
-                $thissection->uservisible = true;
-                $thissection->availableinfo = null;
-                $thissection->showavailability = 0;
-                $sections[$section] = $thissection;
-            }
+            $thissection = $modinfo->get_section_info($section);
 
             //check if section is visible to user
             $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability) && !$course->hiddensections);
@@ -372,24 +362,11 @@ class format_grid_renderer extends format_section_renderer_base {
         }
     }
 
-    private function make_block_topics($course, $sections, $editing, $has_cap_update, $has_cap_vishidsect, $mods, $modnames, $modnamesused, $str_edit_summary, $url_pic_edit, $onsectionpage) {
+    private function make_block_topics($course, $sections, $modinfo, $editing, $has_cap_update, $has_cap_vishidsect, $str_edit_summary, $url_pic_edit, $onsectionpage) {
 
-        // Section 0 already displayed, so not an orphan for code below.
         unset($sections[0]);
         for ($section = 1; $section <= $course->numsections; $section++) {
-            if (!empty($sections[$section])) {
-                $thissection = $sections[$section];
-            } else {
-                // This will create a course section if it doesn't exist..
-                $thissection = get_course_section($section, $course->id);
-
-                // The returned section is only a bare database object rather than
-                // a section_info object - we will need at least the uservisible
-                // field in it.
-                $thissection->uservisible = true;
-                $thissection->availableinfo = null;
-                $thissection->showavailability = 0;
-            }
+            $thissection = $modinfo->get_section_info($section);
 
             if (!$has_cap_vishidsect && !$thissection->visible && $course->hiddensections) {
                 unset($sections[$section]);
@@ -434,10 +411,10 @@ class format_grid_renderer extends format_section_renderer_base {
 
                 echo $this->section_availability_message($thissection);
 
-                print_section($course, $thissection, $mods, $modnamesused);
+                print_section($course, $thissection, null, null, true, "100%", false, 0);
 
                 if ($editing) {
-                    print_section_add_menus($course, $section, $modnames);
+                    print_section_add_menus($course, $section, null, false, false, 0);
                 }
             } else {
                 echo html_writer::tag('h2', $this->get_title($thissection));
@@ -445,13 +422,6 @@ class format_grid_renderer extends format_section_renderer_base {
 
                 echo $this->section_availability_message($thissection);
             }
-
-            /* $this->section_header($thissection, $course, $onsectionpage);
-              print_section($course, $thissection, $mods, $modnamesused);
-
-              if ($editing) {
-              print_section_add_menus($course, $section, $modnames);
-              } */
 
             echo html_writer::end_tag('div');
             echo html_writer::end_tag('li');
@@ -467,7 +437,7 @@ class format_grid_renderer extends format_section_renderer_base {
                     continue;
                 }
                 echo $this->stealth_section_header($section);
-                print_section($course, $thissection, $mods, $modnamesused);
+                print_section($course, $thissection, null, null, true, "100%", false, 0);
                 echo $this->stealth_section_footer();
             }
 
