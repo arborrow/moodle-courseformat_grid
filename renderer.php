@@ -69,7 +69,7 @@ class format_grid_renderer extends format_section_renderer_base {
         global $PAGE;
 
         $summary_status = _get_summary_visibility($course->id);
-        $context = get_context_instance(CONTEXT_COURSE, $course->id);
+        $context = context_course::instance($course->id);
         $editing = $PAGE->user_is_editing();
         $has_cap_update = has_capability('moodle/course:update', $context);
         $has_cap_vishidsect = has_capability('moodle/course:viewhiddensections', $context);
@@ -92,7 +92,7 @@ class format_grid_renderer extends format_section_renderer_base {
         //or include the summary block if it's in the grid display
         $this->topic0_at_top = $summary_status->showsummary == 1;
         if ($this->topic0_at_top) {
-            $this->topic0_at_top = $this->make_block_topic0(0, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
+            $this->topic0_at_top = $this->make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
         }
         echo html_writer::start_tag('div', array('id' => 'iconContainer'));
         echo html_writer::start_tag('ul', array('class' => 'icons'));
@@ -111,7 +111,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
         /// Print Section 0 with general activities
         if (!$this->topic0_at_top) {
-            $this->make_block_topic0(0, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
+            $this->make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
         }
 
         /// Now all the normal modules by topic
@@ -188,9 +188,9 @@ class format_grid_renderer extends format_section_renderer_base {
     }
 
     // Grid format specific code
-    private function make_block_topic0($section, $course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, $onsectionpage) {
-
-        if (!is_numeric($section) || !array_key_exists($section, $sections))
+    private function make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, $onsectionpage) {
+        $section = 0;
+        if (!array_key_exists($section, $sections))
             return false;
 
         $thissection = $modinfo->get_section_info($section);

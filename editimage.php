@@ -75,10 +75,9 @@ if ($mform->is_cancelled()) {
             'timemodified' => $created);
 
         $temp_file = $mform->save_stored_file(
-                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'], $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.' . $storedfile_record['filename'], true);
+                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'], $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.' .  $storedfile_record['filename'], true);
 
         try {
-            print_object($temp_file);
             // Ensure the right quality setting...
             switch ($temp_file->get_mimetype()) {
                 case 'image/jpeg':
@@ -104,6 +103,7 @@ if ($mform->is_cancelled()) {
                 $temp_file->delete();
                 unset($temp_file);
             }
+            print('Grid Format Exception:...');
             debugging($e->getMessage());
         }
         redirect($CFG->wwwroot . "/course/view.php?id=" . $course->id);

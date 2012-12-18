@@ -29,13 +29,13 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version  = 2012082200;
 
 // Required Moodle version
-$plugin->requires = 2012062501.03; // 2.3.1 (Build: 20120719) - Because of MDL-33767.
+$plugin->requires = 2012120300.00; // 2.4 (Build: 20121203)
 
 // Full name of the plugin (used for diagnostics)
 $plugin->component = 'format_grid';
 
 // Software maturity level
-$plugin->release  = MATURITY_BETA;
+$plugin->release  = MATURITY_ALPHA;
 
 // User-friendly version number
-$plugin->maturity = '2.3.1 (2012062501.03)';
+$plugin->maturity = '2.4.0.1';
