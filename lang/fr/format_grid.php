@@ -19,5 +19,3 @@ $string['updatesection'] = 'Modifier la section';
 $string['topicoutline'] = 'Section';
 
 $string['section0name'] = 'Général';
-
-?>

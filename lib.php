@@ -22,8 +22,221 @@
  * @copyright 2009 Sam Hemelryk
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/course/format/lib.php'); // For format_base.
+
+class format_grid extends format_base {
+
+    /**
+     * Returns the format's settings and gets them if they do not exist.
+     * @return type The settings as an array.
+     */
+    public function get_settings() {
+        if (empty($this->settings) == true) {
+            $this->settings = $this->get_format_options();
+        }
+        return $this->settings;
+    }
+
+    /**
+     * Gets the name for the provided section.
+     *
+     * @param stdClass $section The section.
+     * @return string The section name.
+     */
+    public function get_section_name($section) {
+        $course = $this->get_course();
+        $section = $this->get_section($section);
+        if (!empty($section->name)) {
+            return format_string($section->name, true, array('context' => get_context_instance(CONTEXT_COURSE, $course->id)));
+        } if ($section->section == 0) {
+            return get_string('topic0', 'format_grid');
+        } else {
+            return get_string('topic', 'format_grid') . ' ' . $section->section;
+        }
+    }
+
+    /**
+     * Indicates this format uses sections.
+     *
+     * @return bool Returns true
+     */
+    public function uses_sections() {
+        return true;
+    }
+
+    /**
+     * The URL to use for the specified course (with section)
+     *
+     * @param int|stdClass $section Section object from database or just field course_sections.section
+     *     if omitted the course view page is returned
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigation' (bool) if true and section has no separate page, the function returns null
+     *     'sr' (int) used by multipage formats to specify to which section to return
+     * @return null|moodle_url
+     */
+    public function get_view_url($section, $options = array()) {
+        $course = $this->get_course();
+        $url = new moodle_url('/course/view.php', array('id' => $course->id));
+
+        $sr = null;
+        if (array_key_exists('sr', $options)) {
+            $sr = $options['sr'];
+        }
+        if (is_object($section)) {
+            $sectionno = $section->section;
+        } else {
+            $sectionno = $section;
+        }
+        if ($sectionno !== null) {
+            if ($sr !== null) {
+                if ($sr) {
+                    $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
+                    $sectionno = $sr;
+                } else {
+                    $usercoursedisplay = COURSE_DISPLAY_SINGLEPAGE;
+                }
+            } else {
+                $usercoursedisplay = $course->coursedisplay;
+            }
+            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+                $url->param('section', $sectionno);
+            } else {
+                if (!empty($options['navigation'])) {
+                    return null;
+                }
+                $url->set_anchor('section-' . $sectionno);
+            }
+        }
+        return $url;
+    }
+
+    /**
+     * Returns the information about the ajax support in the given source format
+     *
+     * The returned object's property (boolean)capable indicates that
+     * the course format supports Moodle course ajax features.
+     * The property (array)testedbrowsers can be used as a parameter for {@link ajaxenabled()}.
+     *
+     * @return stdClass
+     */
+    public function supports_ajax() {
+        $ajaxsupport = new stdClass();
+        $ajaxsupport->capable = true;
+        $ajaxsupport->testedbrowsers = array('MSIE' => 8.0, 'Gecko' => 20061111, 'Opera' => 9.0, 'Safari' => 531, 'Chrome' => 6.0);
+        return $ajaxsupport;
+    }
+
+    /**
+     * Custom action after section has been moved in AJAX mode
+     *
+     * Used in course/rest.php
+     *
+     * @return array This will be passed in ajax respose
+     */
+    function ajax_section_move() {
+        global $PAGE;
+        $titles = array();
+        $course = $this->get_course();
+        $modinfo = get_fast_modinfo($course);
+        $renderer = $this->get_renderer($PAGE);
+        if ($renderer && ($sections = $modinfo->get_section_info_all())) {
+            foreach ($sections as $number => $section) {
+                $titles[$number] = $renderer->section_title($section, $course);
+            }
+        }
+        return array('sectiontitles' => $titles, 'action' => 'move');
+    }
+
+    /**
+     * Returns the list of blocks to be automatically added for the newly created course
+     *
+     * @return array of default blocks, must contain two keys BLOCK_POS_LEFT and BLOCK_POS_RIGHT
+     *     each of values is an array of block names (for left and right side columns)
+     */
+    public function get_default_blocks() {
+        return array(
+            BLOCK_POS_LEFT => array(),
+            BLOCK_POS_RIGHT => array('search_forums', 'news_items', 'calendar_upcoming', 'recent_activity')
+        );
+    }
+
+    /**
+     * Definitions of the additional options that this course format uses for course
+     *
+     * Collapsed Topics format uses the following options (until extras are migrated):
+     * - coursedisplay
+     * - numsections
+     * - hiddensections
+     *
+     * @param bool $foreditform
+     * @return array of options
+     */
+    public function course_format_options($foreditform = false) {
+        static $courseformatoptions = false;
+
+        if ($courseformatoptions === false) {
+            $courseconfig = get_config('moodlecourse');
+            $courseformatoptions = array(
+                'numsections' => array(
+                    'default' => $courseconfig->numsections,
+                    'type' => PARAM_INT,
+                ),
+                'hiddensections' => array(
+                    'default' => $courseconfig->hiddensections,
+                    'type' => PARAM_INT,
+                ),
+                'coursedisplay' => array(
+                    'default' => $courseconfig->coursedisplay,
+                    'type' => PARAM_INT,
+                )
+            );
+        }
+        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
+            global $USER;
+            $courseconfig = get_config('moodlecourse');
+            $sectionmenu = array();
+            for ($i = 0; $i <= $courseconfig->maxsections; $i++) {
+                $sectionmenu[$i] = "$i";
+            }
+            $courseformatoptionsedit = array(
+                'numsections' => array(
+                    'label' => new lang_string('numbersections', 'format_topcoll'),
+                    'element_type' => 'select',
+                    'element_attributes' => array($sectionmenu),
+                ),
+                'hiddensections' => array(
+                    'label' => new lang_string('hiddensections'),
+                    'help' => 'hiddensections',
+                    'help_component' => 'moodle',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => new lang_string('hiddensectionscollapsed'),
+                            1 => new lang_string('hiddensectionsinvisible')
+                        )
+                    ),
+                ),
+                'coursedisplay' => array(
+                    'label' => new lang_string('coursedisplay'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
+                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
+                        )
+                    ),
+                    'help' => 'coursedisplay',
+                    'help_component' => 'moodle',
+                )
+            );
+            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
+        }
+        return $courseformatoptions;
+    }
+
+}
 
 /**
  * Indicates this format uses sections.
@@ -58,53 +271,6 @@ function callback_grid_definition() {
     return get_string('topic', 'format_grid');
 }
 
-function callback_grid_get_section_name($course, $section) {
-    // We can't add a node without any text
-    if (!empty($section->name)) {
-        return format_string($section->name, true,
-            array('context' => get_context_instance(CONTEXT_COURSE, $course->id)));  
-    } if ($section->section == 0) {
-        return get_string('topic0', 'format_grid');
-    } else {
-        return get_string('topic', 'format_grid').' '.$section->section;
-    }
-}
-
-/**
- * Declares support for course AJAX features
- *
- * @see course_format_ajax_support()
- * @return stdClass
- */
-function callback_grid_ajax_support() {
-    $ajaxsupport = new stdClass();
-    $ajaxsupport->capable = true;
-    $ajaxsupport->testedbrowsers = array(
-        'MSIE' => 6.0, 'Gecko' => 20061111, 'Safari' => 531, 'Chrome' => 6.0);
-    return $ajaxsupport;
-}
-
-/**
- * Callback function to do some action after section move.
- *
- * @param stdClass $course The course entry from DB.
- * @return array This will be passed in ajax respose.
- */
-function callback_grid_ajax_section_move($course) {
-    global $COURSE, $PAGE;
-
-    $titles = array();
-    rebuild_course_cache($course->id);
-    $modinfo = get_fast_modinfo($COURSE);
-    $renderer = $PAGE->get_renderer('format_grid');
-    if ($renderer && ($sections = $modinfo->get_section_info_all())) {
-        foreach ($sections as $number => $section) {
-            $titles[$number] = $renderer->section_title($section, $course);
-        }
-    }
-    return array('sectiontitles' => $titles, 'action' => 'move');
-}
-
 /**
  * Deletes the settings entry for the given course upon course deletion.
  */
@@ -117,13 +283,12 @@ function format_grid_delete_course($courseid) {
 
 // Grid specific functions...
 function _grid_moodle_url($url, array $params = null) {
-    return new moodle_url('/course/format/grid/'.$url, $params);
+    return new moodle_url('/course/format/grid/' . $url, $params);
 }
 
 function _is_empty_text($text) {
-    return empty($text) || 
-        preg_match('/^(?:\s|&nbsp;)*$/si', 
-            htmlentities($text, 0 /*ENT_HTML401*/, 'UTF-8', true));
+    return empty($text) ||
+            preg_match('/^(?:\s|&nbsp;)*$/si', htmlentities($text, 0 /* ENT_HTML401 */, 'UTF-8', true));
 }
 
 function _grid_get_icon($courseid, $sectionid) {
@@ -132,16 +297,15 @@ function _grid_get_icon($courseid, $sectionid) {
     if ((!$courseid) || (!$sectionid))
         return false;
 
-    if (!$sectionicon = $DB->get_record('format_grid_icon',
-        array('sectionid' => $sectionid))) {
+    if (!$sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
 
-        $newicon                = new stdClass();
-        $newicon->sectionid     = $sectionid;
-        $newicon->courseid      = $courseid;
+        $newicon = new stdClass();
+        $newicon->sectionid = $sectionid;
+        $newicon->courseid = $courseid;
 
         if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon, true)) {
             throw new moodle_exception('invalidrecordid', 'format_grid', '',
-                'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
+                    'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
         }
         $sectionicon = false;
     }
@@ -152,13 +316,13 @@ function _grid_get_icon($courseid, $sectionid) {
 function _get_summary_visibility($course) {
     global $CFG, $DB;
     if (!$summary_status = $DB->get_record('format_grid_summary', array('courseid' => $course))) {
-        $new_status                = new stdClass();
-        $new_status->courseid     = $course;
-        $new_status->showsummary  = 1;
+        $new_status = new stdClass();
+        $new_status->courseid = $course;
+        $new_status->showsummary = 1;
 
         if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
             throw new moodle_exception('invalidrecordid', 'format_grid', '',
-                'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
+                    'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
         }
         $summary_status = $new_status;
     }
@@ -166,22 +330,20 @@ function _get_summary_visibility($course) {
 }
 
 // Is this needed???
-function _move_section_arrow($section, $course, 
-    $op_move_delta, $op_move_style, 
-    $str_move_text, $url_pic_move) {
+function _move_section_arrow($section, $course, $op_move_delta, $op_move_style, $str_move_text, $url_pic_move) {
 
-    $url = new moodle_url('/course/view.php#section-'.($section + $op_move_delta), array(
-        'id'      => $course->id,
-        'random'  => rand(1, 10000),
-        'section' => $section,
-        'move'    => $op_move_delta,
-        'sesskey' => sesskey()));
+    $url = new moodle_url('/course/view.php#section-' . ($section + $op_move_delta), array(
+                'id' => $course->id,
+                'random' => rand(1, 10000),
+                'section' => $section,
+                'move' => $op_move_delta,
+                'sesskey' => sesskey()));
 
     $img = html_writer::empty_tag('img', array(
-                'src'   => $url_pic_move,
-                'alt'   => $str_move_text,
-                'class' => 'icon ' . $op_move_style));   
+                'src' => $url_pic_move,
+                'alt' => $str_move_text,
+                'class' => 'icon ' . $op_move_style));
 
     return html_writer::link($url, $img, array(
-        'title' => $str_move_text));       
+                'title' => $str_move_text));
 }

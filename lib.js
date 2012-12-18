@@ -139,6 +139,4 @@ function update_shadebox() {
     var overlay = document.getElementById("shadebox_overlay");
     var pagesize = get_page_size();
     overlay.style.height = pagesize[1] + "px";
-
-
 }

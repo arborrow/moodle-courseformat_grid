@@ -15,5 +15,3 @@ $string['title'] = 'Название раздела';
 $string['topic'] = 'Раздел';
 $string['topic0'] = 'Общее';
 $string['topicoutline'] = 'Разделов';
-
-
