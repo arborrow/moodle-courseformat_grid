@@ -1,7 +1,5 @@
 <?php
 
-// $Id: format.php
-
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/filelib.php');
 require_once($CFG->libdir . '/completionlib.php');
