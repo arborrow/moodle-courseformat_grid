@@ -1,9 +1,9 @@
 <?php
 
 /* Imports */
-require_once("../../../config.php");
+require_once('../../../config.php');
 require_once($CFG->dirroot . '/repository/lib.php');
-require_once('./editimage_form.php');
+require_once($CFG->dirroot . '/course/format/grid/editimage_form.php');
 
 /* Script settings */
 define('GRID_ITEM_IMAGE_WIDTH', 210);
@@ -47,7 +47,7 @@ $options = array(
     'accepted_types' => array('web_image'),
     'return_types' => FILE_INTERNAL);
 
-$mform = new image_form(null, array(
+$mform = new grid_image_form(null, array(
             'contextid' => $contextid,
             'userid' => $formdata->userid,
             'sectionid' => $sectionid,

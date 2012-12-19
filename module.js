@@ -1,6 +1,11 @@
 var selected_topic = null;
 
-function hide_sections() {
+/**
+ * @namespace
+ */
+M.format_grid = M.format_grid || {};
+
+M.format_grid.hide_sections = function () {
     //Have to hide the div's using javascript so they are visible if javascript is disabled.
     var grid_sections = getElementsByClassName(document.getElementById("middle-column"), "li", "grid_section");
     for(var i = 0; i < grid_sections.length; i++) {
@@ -83,9 +88,7 @@ function show_shadebox() {
 }
 
 function hide_shadebox() {
-
     document.getElementById("shadebox").style.display = "none";
-
 }
 
 //code from quirksmode.org

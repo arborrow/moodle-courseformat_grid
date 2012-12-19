@@ -44,8 +44,6 @@ $renderer = $PAGE->get_renderer('format_grid');
 if (!empty($displaysection)) {
     $renderer->print_single_section_page($course, null, null, null, null, $displaysection);
 } else {
-    echo html_writer::script('', $CFG->wwwroot . '/course/format/grid/gridlib.js');
-    //$PAGE->requires->js('/course/format/grid/gridlib.js');
     $renderer->print_multiple_section_page($course, null, null, null, null);
 }
 // Include course format js module

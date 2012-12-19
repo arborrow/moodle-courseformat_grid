@@ -1,10 +1,10 @@
 <?php
 
 defined('MOODLE_INTERNAL') || die();
-
+global $CFG;
 require_once("{$CFG->libdir}/formslib.php");
 
-class image_form extends moodleform {
+class grid_image_form extends moodleform {
     function definition() {
         $mform = $this->_form;
         $instance = $this->_customdata;
