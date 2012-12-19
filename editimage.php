@@ -29,7 +29,7 @@ $url = new moodle_url('/course/format/grid/editimage.php', array(
             'userid' => $formdata->userid,
             'mode' => $formdata->mode));
 
-/* No exactly sure what this stuff does, but it seems fairly straightforward */
+/* Not exactly sure what this stuff does, but it seems fairly straightforward */
 list($context, $course, $cm) = get_context_info_array($contextid);
 
 require_login($course, true, $cm);
@@ -65,7 +65,7 @@ if ($mform->is_cancelled()) {
         /* Resize the new image and save it */
         $created = time();
         $storedfile_record = array(
-            'contextid' => $context->id,
+            'contextid' => $contextid,
             'component' => 'course',
             'filearea' => 'section',
             'itemid' => $sectionid,
@@ -75,17 +75,17 @@ if ($mform->is_cancelled()) {
             'timemodified' => $created);
 
         $temp_file = $mform->save_stored_file(
-                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'], $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.' .  $storedfile_record['filename'], true);
+                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'], $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.' . $storedfile_record['filename'], true);
 
         try {
             // Ensure the right quality setting...
             switch ($temp_file->get_mimetype()) {
                 case 'image/jpeg':
-                    $quality = 50;
+                    $quality = 75;
                     break;
 
                 case 'image/png':
-                    $quality = 5;
+                    $quality = 3;
                     break;
 
                 default:
@@ -94,6 +94,11 @@ if ($mform->is_cancelled()) {
 
             $fr = $fs->convert_image($storedfile_record, $temp_file, GRID_ITEM_IMAGE_WIDTH, GRID_ITEM_IMAGE_HEIGHT, true, $quality);
 
+            // Debugging...
+            if (debugging('', DEBUG_DEVELOPER)) {
+                // Use 'print' function even though the documentation says you should not and yet everywhere does.
+                print_object($fr);
+            }
             $temp_file->delete();
             unset($temp_file);
 
@@ -103,7 +108,7 @@ if ($mform->is_cancelled()) {
                 $temp_file->delete();
                 unset($temp_file);
             }
-            print('Grid Format Exception:...');
+            print('Grid Format Edit Image Exception:...');
             debugging($e->getMessage());
         }
         redirect($CFG->wwwroot . "/course/view.php?id=" . $course->id);
