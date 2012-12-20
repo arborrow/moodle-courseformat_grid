@@ -1,4 +1,4 @@
-﻿GRID COURSE FORMAT
+GRID COURSE FORMAT
 ============================
 Package tested in: Moodle 2.4 2012120300.00 (Build: 20121203)
 
