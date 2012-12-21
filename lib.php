@@ -202,7 +202,7 @@ class format_grid extends format_base {
             }
             $courseformatoptionsedit = array(
                 'numsections' => array(
-                    'label' => new lang_string('numbersections', 'format_topcoll'),
+                    'label' => new lang_string('numbersections', 'format_grid'),
                     'element_type' => 'select',
                     'element_attributes' => array($sectionmenu),
                 ),

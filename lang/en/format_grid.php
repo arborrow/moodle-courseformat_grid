@@ -20,3 +20,6 @@ $string['topicoutline'] = 'Topic';
 $string['hidefromothers'] = 'Hide topic';
 $string['showfromothers'] = 'Show topic';
 $string['currentsection'] = 'This topic';
+
+// Moodle 2.4 Course format refactoring - MDL-35218
+$string['numbersections'] = 'Number of topics';

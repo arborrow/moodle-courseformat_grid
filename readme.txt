@@ -12,9 +12,11 @@ QUICK INSTALL
 ==============
 Download zip package, extract the grid folder and upload this folder into course/format/.
 
-NOTE: If you have previously installed a Beta version and get the latest code you MUST:
+NOTE: If you have previously installed a development version and get the latest code you MUST:
 Remove the row with the 'plugin' of 'format_grid' in the 'config_plugins' table and drop the 'format_grid_icon'
-and 'format_grid_summary' tables before clicking on 'notifications'.
+and 'format_grid_summary' tables in the database before clicking on 'notifications'.
+
+If upgrade fails, please perform the actions as detailed in the note above.
 
 ABOUT
 =============
@@ -71,3 +73,17 @@ FILES
 
 ROADMAP
 =============
+1. Improved instructions.
+2. User definable grid row icon numbers - https://moodle.org/mod/forum/discuss.php?d=196716
+
+HISTORY
+=============
+
+18th December 2012 - Version 2.4.0.1 - Alpha version, not for production servers.
+1. First alpha release for Moodle 2.4
+
+18th December 2012 - Version 2.4.0.2 - Alpha version, not for production servers.
+1. Second alpha release for Moodle 2.4
+
+21st December 2012 - Version 2.4.0.3 - Beta version, not for production servers.
+1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
