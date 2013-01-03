@@ -76,7 +76,7 @@ class format_grid_renderer extends format_section_renderer_base {
             // Only in the non-general sections.
             if (!$section->visible) {
                 $sectionstyle = ' hidden';
-            } else if ($this->is_section_current($section, $course)) {
+            } else if (course_get_format($course)->is_section_current($section)) {
                 $sectionstyle = ' current';
             }
         }
@@ -282,71 +282,130 @@ class format_grid_renderer extends format_section_renderer_base {
             $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability) && !$course->hiddensections);
 
             if ($showsection) {
-                //Get the module icon
-                if ($editing && $has_cap_update) {
-                    $onclickevent = "select_topic_edit(event, {$thissection->section})";
-                } else {
-                    $onclickevent = "select_topic(event, {$thissection->section})";
-                }
-
-                echo html_writer::start_tag('li');
-                echo html_writer::start_tag('a', array(
-                    'href' => '#section-' . $thissection->section,
-                    'class' => 'icon_link',
-                    'onclick' => $onclickevent));
-
-                echo html_writer::tag('p', $this->section_title($thissection, $course), array('class' => 'icon_content'));
-
-                if ($this->new_activity($thissection, $course)) {
-                    echo html_writer::empty_tag('img', array(
-                        'class' => 'new_activity',
-                        'src' => $url_pic_new_activity,
-                        'alt' => ''));
-                }
-
-                echo html_writer::start_tag('div', array('class' => 'image_holder'));
-
-                $sectionicon = _grid_get_icon(
-                        $course->id, $thissection->id);
-
-                if (is_object($sectionicon) && !empty($sectionicon->imagepath)) {
-                    echo html_writer::empty_tag('img', array(
-                        'src' => moodle_url::make_pluginfile_url(
-                                $context->id, 'course', 'section', $thissection->id, '/', $sectionicon->imagepath), 'alt' => ''));
-                    //echo html_writer::empty_tag('img', array(
-                    //    'src' => 'format/grid/299fa7f4d4f13357861c9c1a595f15583e535f4b.jpg'));
-                } else if ($section == 0) {
-                    echo html_writer::empty_tag('img', array(
-                        'src' => $this->output->pix_url('info', 'format_grid'),
-                        'alt' => ''));
-                }
-
-                echo html_writer::end_tag('div');
-                echo html_writer::end_tag('a');
-
-                if ($editing && $has_cap_update) {
-                    echo html_writer::link(
-                            _grid_moodle_url('editimage.php', array(
-                                'sectionid' => $thissection->id,
-                                'contextid' => $context->id,
-                                'userid' => $USER->id)), html_writer::empty_tag('img', array(
-                                'src' => $url_pic_edit,
-                                'alt' => $str_edit_image_alt)) . '&nbsp;' . $str_edit_image, array('title' => $str_edit_image_alt));
-
-                    if ($section == 0) {
-                        $str_display_summary = get_string('display_summary', 'format_grid');
-                        $str_display_summary_alt = get_string('display_summary_alt', 'format_grid');
-
-                        echo html_writer::empty_tag('br') . html_writer::link(
-                                _grid_moodle_url('mod_summary.php', array(
-                                    'sesskey' => sesskey(),
-                                    'course' => $course->id,
-                                    'showsummary' => 1)), html_writer::empty_tag('img', array(
-                                    'src' => $this->output->pix_url('out_of_grid', 'format_grid'),
-                                    'alt' => $str_display_summary_alt)) . '&nbsp;' . $str_display_summary, array('title' => $str_display_summary_alt));
+                if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
+                    //Get the module icon
+                    if ($editing && $has_cap_update) {
+                        $onclickevent = "select_topic_edit(event, {$thissection->section})";
+                    } else {
+                        $onclickevent = "select_topic(event, {$thissection->section})";
                     }
+
+                    echo html_writer::start_tag('li');
+                    echo html_writer::start_tag('a', array(
+                        'href' => '#section-' . $thissection->section,
+                        'class' => 'icon_link',
+                        'onclick' => $onclickevent));
+
+                    //echo html_writer::tag('p', $this->section_title($thissection, $course), array('class' => 'icon_content'));
+                    echo html_writer::tag('p', get_section_name($course, $thissection), array('class' => 'icon_content'));
+
+                    if ($this->new_activity($thissection, $course)) {
+                        echo html_writer::empty_tag('img', array(
+                            'class' => 'new_activity',
+                            'src' => $url_pic_new_activity,
+                            'alt' => ''));
+                    }
+
+                    echo html_writer::start_tag('div', array('class' => 'image_holder'));
+
+                    $sectionicon = _grid_get_icon(
+                            $course->id, $thissection->id);
+
+                    if (is_object($sectionicon) && !empty($sectionicon->imagepath)) {
+                        echo html_writer::empty_tag('img', array(
+                            'src' => moodle_url::make_pluginfile_url(
+                                    $context->id, 'course', 'section', $thissection->id, '/', $sectionicon->imagepath), 'alt' => ''));
+                    } else if ($section == 0) {
+                        echo html_writer::empty_tag('img', array(
+                            'src' => $this->output->pix_url('info', 'format_grid'),
+                            'alt' => ''));
+                    }
+
+                    echo html_writer::end_tag('div');
+                    echo html_writer::end_tag('a');
+
+                    if ($editing && $has_cap_update) {
+                        echo html_writer::link(
+                                _grid_moodle_url('editimage.php', array(
+                                    'sectionid' => $thissection->id,
+                                    'contextid' => $context->id,
+                                    'userid' => $USER->id)), html_writer::empty_tag('img', array(
+                                    'src' => $url_pic_edit,
+                                    'alt' => $str_edit_image_alt)) . '&nbsp;' . $str_edit_image, array('title' => $str_edit_image_alt));
+
+                        if ($section == 0) {
+                            $str_display_summary = get_string('display_summary', 'format_grid');
+                            $str_display_summary_alt = get_string('display_summary_alt', 'format_grid');
+
+                            echo html_writer::empty_tag('br') . html_writer::link(
+                                    _grid_moodle_url('mod_summary.php', array(
+                                        'sesskey' => sesskey(),
+                                        'course' => $course->id,
+                                        'showsummary' => 1)), html_writer::empty_tag('img', array(
+                                        'src' => $this->output->pix_url('out_of_grid', 'format_grid'),
+                                        'alt' => $str_display_summary_alt)) . '&nbsp;' . $str_display_summary, array('title' => $str_display_summary_alt));
+                        }
+                    }
+                    echo html_writer::end_tag('li');
+                } else {
+                    echo html_writer::start_tag('li');
+
+                    $title = html_writer::tag('p', get_section_name($course, $thissection), array('class' => 'icon_content'));
+
+                    if ($this->new_activity($thissection, $course)) {
+                        $title .= html_writer::empty_tag('img', array(
+                                    'class' => 'new_activity',
+                                    'src' => $url_pic_new_activity,
+                                    'alt' => ''));
+                    }
+
+                    $title .= html_writer::start_tag('div', array('class' => 'image_holder'));
+
+                    $sectionicon = _grid_get_icon(
+                            $course->id, $thissection->id);
+
+                    if (is_object($sectionicon) && !empty($sectionicon->imagepath)) {
+                        $title .= html_writer::empty_tag('img', array(
+                                    'src' => moodle_url::make_pluginfile_url(
+                                            $context->id, 'course', 'section', $thissection->id, '/', $sectionicon->imagepath), 'alt' => ''));
+                    } else if ($section == 0) {
+                        $title .= html_writer::empty_tag('img', array(
+                                    'src' => $this->output->pix_url('info', 'format_grid'),
+                                    'alt' => ''));
+                    }
+
+                    $title .= html_writer::end_tag('div');
+
+                    $url = course_get_url($course, $thissection->section, array('navigation' => true));
+                    if ($url) {
+                        $title = html_writer::link($url, $title);
+                    }
+                    echo $title;
+
+                    if ($editing && $has_cap_update) {
+                        echo html_writer::link(
+                                _grid_moodle_url('editimage.php', array(
+                                    'sectionid' => $thissection->id,
+                                    'contextid' => $context->id,
+                                    'userid' => $USER->id)), html_writer::empty_tag('img', array(
+                                    'src' => $url_pic_edit,
+                                    'alt' => $str_edit_image_alt)) . '&nbsp;' . $str_edit_image, array('title' => $str_edit_image_alt));
+
+                        if ($section == 0) {
+                            $str_display_summary = get_string('display_summary', 'format_grid');
+                            $str_display_summary_alt = get_string('display_summary_alt', 'format_grid');
+
+                            echo html_writer::empty_tag('br') . html_writer::link(
+                                    _grid_moodle_url('mod_summary.php', array(
+                                        'sesskey' => sesskey(),
+                                        'course' => $course->id,
+                                        'showsummary' => 1)), html_writer::empty_tag('img', array(
+                                        'src' => $this->output->pix_url('out_of_grid', 'format_grid'),
+                                        'alt' => $str_display_summary_alt)) . '&nbsp;' . $str_display_summary, array('title' => $str_display_summary_alt));
+                        }
+                    }
+                    echo html_writer::end_tag('li');
                 }
-                echo html_writer::end_tag('li');
             }
         }
     }

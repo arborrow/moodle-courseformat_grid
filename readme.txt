@@ -87,3 +87,6 @@ HISTORY
 
 21st December 2012 - Version 2.4.0.3 - Beta version, not for production servers.
 1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
+
+3rd January 2013 - Version 2.4.0.4 - Beta version, not for production servers.
+1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
