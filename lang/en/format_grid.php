@@ -23,3 +23,6 @@ $string['currentsection'] = 'This topic';
 
 // Moodle 2.4 Course format refactoring - MDL-35218
 $string['numbersections'] = 'Number of topics';
+
+// Image did not convert.
+$string['imagecannotbeusedasanicon'] = 'Image cannot be used as an icon, must be a Gif, Jpg or Png and the GD PHP library installed.';

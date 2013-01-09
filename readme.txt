@@ -90,3 +90,7 @@ HISTORY
 
 3rd January 2013 - Version 2.4.0.4 - Beta version, not for production servers.
 1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
+
+9th January 2013 - Version 2.4.0.5 - Beta version, not for production servers.
+1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
+2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
