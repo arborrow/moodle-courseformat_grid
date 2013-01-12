@@ -1,10 +1,9 @@
 GRID COURSE FORMAT
 ============================
-Package tested in: Moodle 2.4 2012120300.00 (Build: 20121203)
-
+Package tested in: Moodle 2.5dev (Build: 20130111) 2013011100.01
 
 ALPHA DEVELOPMENT VERSION - NOT FOR PRODUCTION SITES - Please place comments / feedback on:
-http://tracker.moodle.org/browse/CONTRIB-3769 - preferred.
+https://moodle.org/plugins/view.php?plugin=format_grid
 or
 http://moodle.org/mod/forum/discuss.php?d=207059
 
@@ -94,3 +93,6 @@ HISTORY
 9th January 2013 - Version 2.4.0.5 - Beta version, not for production servers.
 1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
 2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
+
+12th January 2013 - Version 2.5.0.1 - Alpha version, not for production servers.
+1. Migrated code to Moodle 2.5 development version.
