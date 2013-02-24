@@ -81,28 +81,34 @@ HISTORY
 
 18th December 2012 - Version 2.4.0.1 - Alpha version, not for production servers.
 Change by G J Barnard
-1. First alpha release for Moodle 2.4
+  1. First alpha release for Moodle 2.4
 
 18th December 2012 - Version 2.4.0.2 - Alpha version, not for production servers.
 Change by G J Barnard
-1. Second alpha release for Moodle 2.4
+  1. Second alpha release for Moodle 2.4
 
 21st December 2012 - Version 2.4.0.3 - Beta version, not for production servers.
 Change by G J Barnard
-1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
+  1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
 
 3rd January 2013 - Version 2.4.0.4 - Beta version, not for production servers.
 Change by G J Barnard
-1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
+  1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
 
 9th January 2013 - Version 2.4.0.5 - Beta version, not for production servers.
 Change by G J Barnard
-1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
-2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
+  1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
+  2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
 
 21st January 2013 - Version 2.4.0.6 - Beta version, not for production servers.
 Change by G J Barnard
-1. Changes to 'renderer.php' because of MDL-36095 hence requiring Moodle version 2012120301.02 release 2.4.1+ (Build: 20130118) and above.
+  1. Changes to 'renderer.php' because of MDL-36095 hence requiring Moodle version 2012120301.02 release 2.4.1+ (Build: 20130118) and above.
+
+24th February 2013 - Version 2.4.1 - Stable version.
+Change by G J Barnard
+  1. Changes because of MDL-37901.
+  2. Invisible section fix for Tim Wilde - https://moodle.org/mod/forum/discuss.php?d=218505#p959249.
+  3. This version considered 'Stable' from feedback of Theo Konings on CONTRIB-3534.
 
 Authors
 -------

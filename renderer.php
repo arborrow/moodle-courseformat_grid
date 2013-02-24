@@ -279,7 +279,7 @@ class format_grid_renderer extends format_section_renderer_base {
             $thissection = $modinfo->get_section_info($section);
 
             //check if section is visible to user
-            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability) && !$course->hiddensections);
+            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability || !$course->hiddensections));
 
             if ($showsection) {
                 if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
