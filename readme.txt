@@ -2,12 +2,6 @@ GRID COURSE FORMAT
 ============================
 Package tested in: Moodle version 2012120301.02 release 2.4.1+ (Build: 20130118)
 
-
-ALPHA DEVELOPMENT VERSION - NOT FOR PRODUCTION SITES - Please place comments / feedback on:
-http://tracker.moodle.org/browse/CONTRIB-3769 - preferred.
-or
-http://moodle.org/mod/forum/discuss.php?d=207059
-
 QUICK INSTALL
 ==============
 Download zip package, extract the grid folder and upload this folder into course/format/.
