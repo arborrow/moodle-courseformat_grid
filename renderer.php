@@ -120,9 +120,9 @@ class format_grid_renderer extends format_section_renderer_base {
      *
      * @param stdClass $course The course entry from DB
      * @param array $sections The course_sections entries from the DB
-     * @param array $mods used for print_section()
-     * @param array $modnames used for print_section()
-     * @param array $modnamesused used for print_section()
+     * @param array $mods
+     * @param array $modnames
+     * @param array $modnamesused
      */
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
 
@@ -235,10 +235,10 @@ class format_grid_renderer extends format_section_renderer_base {
 
         //$this->section_header($thissection, $course, $onsectionpage);
 
-        print_section($course, $thissection, null, null, true, "100%", false, 0);
+        echo $this->courserenderer->course_section_cm_list($course, $thissection);
 
         if ($editing) {
-            print_section_add_menus($course, $section, null, false, false, 0);
+            echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section);
 
             if ($this->topic0_at_top) {
                 $str_hide_summary = get_string('hide_summary', 'format_grid');
@@ -279,7 +279,7 @@ class format_grid_renderer extends format_section_renderer_base {
             $thissection = $modinfo->get_section_info($section);
 
             //check if section is visible to user
-            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability) && !$course->hiddensections);
+            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability || !$course->hiddensections));
 
             if ($showsection) {
                 if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
@@ -478,11 +478,9 @@ class format_grid_renderer extends format_section_renderer_base {
 
                 echo $this->section_availability_message($thissection,has_capability('moodle/course:viewhiddensections', $context));
 
-                print_section($course, $thissection, null, null, true, "100%", false, 0);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection);
+                echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section);
 
-                if ($editing) {
-                    print_section_add_menus($course, $section, null, false, false, 0);
-                }
             } else {
                 echo html_writer::tag('h2', $this->get_title($thissection));
                 echo html_writer::tag('p', get_string('hidden_topic', 'format_grid'));
@@ -504,7 +502,7 @@ class format_grid_renderer extends format_section_renderer_base {
                     continue;
                 }
                 echo $this->stealth_section_header($section);
-                print_section($course, $thissection, null, null, true, "100%", false, 0);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection);
                 echo $this->stealth_section_footer();
             }
 

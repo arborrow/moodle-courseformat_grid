@@ -165,7 +165,7 @@ class format_grid extends format_base {
     /**
      * Definitions of the additional options that this course format uses for course
      *
-     * Collapsed Topics format uses the following options (until extras are migrated):
+     * Grid format uses the following options (until extras are migrated):
      * - coursedisplay
      * - numsections
      * - hiddensections
