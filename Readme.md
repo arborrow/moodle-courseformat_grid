@@ -150,7 +150,13 @@ Change by G J Barnard
 
 13th April 2013 - Version 2.5.0.1 - Beta version.
 Change by G J Barnard
-  1.  First 'Beta' release for Moodle 2.5 Beta.
+  1. First 'Beta' release for Moodle 2.5 Beta.
+
+8th May 2013 - Version 2.5.0.2 - Beta
+Change by G J Barnard
+  1. Removed '.jumpmenu' from styles.css because of MDL-38907.
+  2. Added automatic 'Purge all caches' when upgrading.  If this appears not to work by lack of display etc. then perform a
+     manual 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches'.
 
 Authors
 -------
