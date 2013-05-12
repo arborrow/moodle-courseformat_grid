@@ -235,7 +235,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
         //$this->section_header($thissection, $course, $onsectionpage);
 
-        echo $this->courserenderer->course_section_cm_list($course, $thissection);
+        echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
 
         if ($editing) {
             echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section);
@@ -478,8 +478,8 @@ class format_grid_renderer extends format_section_renderer_base {
 
                 echo $this->section_availability_message($thissection,has_capability('moodle/course:viewhiddensections', $context));
 
-                echo $this->courserenderer->course_section_cm_list($course, $thissection);
-                echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
+                echo $this->courserenderer->course_section_add_cm_control($course, $thissection->section, 0);
 
             } else {
                 echo html_writer::tag('h2', $this->get_title($thissection));
@@ -502,7 +502,7 @@ class format_grid_renderer extends format_section_renderer_base {
                     continue;
                 }
                 echo $this->stealth_section_header($section);
-                echo $this->courserenderer->course_section_cm_list($course, $thissection);
+                echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
                 echo $this->stealth_section_footer();
             }
 
