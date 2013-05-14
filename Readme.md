@@ -1,15 +1,13 @@
 Grid Course Format
 ============================
-Package tested in: Moodle 2.5beta 2013041100.00 (Build: 20130411).
-
-BETA DEVELOPMENT VERSION - NOT FOR PRODUCTION SITES.
+A topics based format that uses a grid of user selectable images to popup a light box of the section.
 
 Required version of Moodle
 ==========================
-This version works with Moodle version 2013041100.00 release 2.5beta+ (Build: 20130411) and above until the next release.
+This version works with Moodle version 2013051400.00 release 2.5 (Build: 20130514) and above until the next release.
 
-NOTE: This is a pre-release Moodle 2.5 Beta version that must NOT be used on production servers.  It is subject to change
-at any time without notice.
+Please ensure that your hardware and software complies with 'Requirements' in 'Installing Moodle' on
+'docs.moodle.org/25/en/Installing_Moodle'.
 
 Installation
 ============
@@ -158,6 +156,10 @@ Change by G J Barnard
   2. Added automatic 'Purge all caches' when upgrading.  If this appears not to work by lack of display etc. then perform a
      manual 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches'.
   3. Changes for MDL-39542.
+
+14th May 2013 Version 2.5.1 - Stable
+Change by G J Barnard
+  1.  First stable version for Moodle 2.5 stable.
 
 Authors
 -------
