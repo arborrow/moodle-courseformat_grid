@@ -285,24 +285,6 @@ class format_grid extends format_base {
         }
         return $summary_status;
     }
-
-    // Is this needed???
-    public function move_section_arrow($section, $course, $op_move_delta, $op_move_style, $str_move_text, $url_pic_move) {
-        $url = new moodle_url('/course/view.php#section-' . ($section + $op_move_delta), array(
-                    'id' => $course->id,
-                    'random' => rand(1, 10000),
-                    'section' => $section,
-                    'move' => $op_move_delta,
-                    'sesskey' => sesskey()));
-
-        $img = html_writer::empty_tag('img', array(
-                    'src' => $url_pic_move,
-                    'alt' => $str_move_text,
-                    'class' => 'icon ' . $op_move_style));
-
-        return html_writer::link($url, $img, array(
-                    'title' => $str_move_text));
-    }
 }
 
 /**

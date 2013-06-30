@@ -31,7 +31,7 @@ function xmldb_format_grid_upgrade($oldversion = 0) {
     global $DB;
 
     $dbman = $DB->get_manager();
-        
+
     if ($oldversion < 2011041802) {
         // Define table course_grid_summary to be created
         $table = new xmldb_table('course_grid_summary');
