@@ -99,19 +99,18 @@ class format_grid_renderer extends format_section_renderer_base {
                     $url_pic_edit, $str_edit_summary, false);
         }
         echo html_writer::start_tag('div', array('id' => 'iconContainer'));
-        echo html_writer::start_tag('ul', array('class' => 'icons'));
+        echo html_writer::start_tag('ul', array('class' => 'gridicons'));
         // Print all of the icons.
         $this->make_block_icon_topics($context, $modinfo, $course, $editing, $has_cap_update, $has_cap_vishidsect,
                 $url_pic_edit);
         echo html_writer::end_tag('ul');
         echo html_writer::end_tag('div');
         echo html_writer::start_tag('div', array('id' => 'shadebox'));
-        echo html_writer::tag('div', '', array('id' => 'shadebox_overlay', 'style' => 'display:none;',
-            'onclick' => 'M.format_grid.toggle_shadebox();'));
+        echo html_writer::tag('div', '', array('id' => 'shadebox_overlay', 'style' => 'display:none;'));
         echo html_writer::start_tag('div', array('id' => 'shadebox_content'));
 
         echo html_writer::tag('img', '', array('id' => 'shadebox_close', 'style' => 'display:none;',
-            'src' => $this->output->pix_url('close', 'format_grid'), 'onclick' => 'M.format_grid.toggle_shadebox();'));
+            'src' => $this->output->pix_url('close', 'format_grid')));
         echo $this->start_section_list();
         // If currently moving a file then show the current clipboard.
         $this->make_block_show_clipboard_if_file_moving($course);
@@ -236,14 +235,12 @@ class format_grid_renderer extends format_section_renderer_base {
 
             if ($showsection) {
                 if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
-                    // Get the module icon.
-                    $onclickevent = "M.format_grid.select_topic(event, {$thissection->section})";
 
                     echo html_writer::start_tag('li');
                     echo html_writer::start_tag('a', array(
-                        'href' => '#section-' . $thissection->section,
-                        'class' => 'icon_link',
-                        'onclick' => $onclickevent));
+                        'href' => '#',
+                        'id' => 'gridsection-' . $thissection->section,
+                        'class' => 'gridicon_link'));
 
                     echo html_writer::tag('p', get_section_name($course, $thissection), array('class' => 'icon_content'));
 

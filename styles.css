@@ -56,7 +56,7 @@ div#middle-column ul {
 
 /* @group Topic Icons */
 
-.course-content ul.icons {
+.course-content ul.gridicons {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -68,7 +68,7 @@ div#middle-column ul {
     margin-right: auto;
 }
 
-.course-content ul.icons li {
+.course-content ul.gridicons li {
     width: 220px;
     overflow: hidden;
     float: left;
@@ -79,19 +79,19 @@ div#middle-column ul {
     font-size: 12px;
     display: block;
 }
-.course-content ul.icons li:hover {
+.course-content ul.gridicons li:hover {
     background-color: #f1f2f2;
     color: #333;
 }
-.course-content ul.icons img.new_activity {
+.course-content ul.gridicons img.new_activity {
     position: absolute;
     margin-top: 90px;
     margin-left: 128px;
 }
-.course-content .icon_link {
+.course-content .gridicon_link {
     cursor: pointer;
 }
-.course-content ul.icons li p.icon_content {
+.course-content ul.gridicons li p.icon_content {
     font-size: 14px;
     font-weight: bold;
     margin: 0 0 3px 0;
@@ -101,7 +101,7 @@ div#middle-column ul {
     color: black;
     height: 20px;
 }
-.course-content ul.icons li .image_holder {
+.course-content ul.gridicons li .image_holder {
     width: 218px;
     height: 140px;
     overflow: hidden;
@@ -110,10 +110,10 @@ div#middle-column ul {
     text-align: center;
     vertical-align: middle;
 }
-.course-content ul.icons li:hover .image_holder {
+.course-content ul.gridicons li:hover .image_holder {
     border: 1px solid #dededf;
 }
-.course-content ul.icons li img {
+.course-content ul.gridicons li img {
     margin-top: 0;
 }
 .course-content li.grid_section {

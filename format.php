@@ -72,7 +72,6 @@ if (!empty($displaysection)) {
 
 // Initialise the functionality:...
 $PAGE->requires->js_init_call('M.format_grid.init', array(
-    $course->numsections,
     $PAGE->user_is_editing(),
     has_capability('moodle/course:update', $context)));
 

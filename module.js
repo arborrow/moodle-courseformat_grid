@@ -29,18 +29,28 @@
  */
 M.format_grid = M.format_grid || {};
 M.format_grid.ourYUI;
-M.format_grid.num_sections;
 M.format_grid.editing_on;
 M.format_grid.update_capability;
 M.format_grid.selected_topic;
 
-M.format_grid.init = function(Y, the_num_sections, the_editing_on, the_update_capability) {
+M.format_grid.init = function(Y, the_editing_on, the_update_capability) {
     "use strict";
     this.ourYUI = Y;
-    this.num_sections = the_num_sections;
     this.editing_on = the_editing_on;
     this.update_capability = the_update_capability;
     this.selected_topic = null;
+
+    Y.delegate('click', this.icon_click, Y.config.doc, 'ul.gridicons a', this);
+
+    var shadeboxtoggleone = Y.one("#shadebox_overlay");
+    if (shadeboxtoggleone) {
+        shadeboxtoggleone.on('click', this.toggle_shadebox);
+    }
+    var shadeboxtoggletwo = Y.one("#shadebox_close");
+    if (shadeboxtoggletwo) {
+        shadeboxtoggletwo.on('click', this.toggle_shadebox);
+    }
+    //Y.delegate('key', this.toggle_shadebox, '#shadebox', 'press:67,99'); // The 'C' key.
 };
 
 M.format_grid.hide_sections = function () {
@@ -56,30 +66,32 @@ M.format_grid.hide_sections = function () {
     }
     document.getElementById("shadebox_close").style.display = "";
 
-    this.initialize_shadebox();
-    this.update_shadebox();
+    M.format_grid.initialize_shadebox();
+    M.format_grid.update_shadebox();
     window.onresize = function() {
-        this.update_shadebox();
+        M.format_grid.update_shadebox();
     }
 }
 
-M.format_grid.select_topic = function(evt, topic_no) {
+M.format_grid.icon_click = function(e) {
+    var iconIndex = parseInt(e.currentTarget.get('id').replace("gridsection-", ""));
+    e.preventDefault();
+    this.select_topic(iconIndex);
+};
+
+
+M.format_grid.select_topic = function(topic_no) {
     if ((this.editing_on == true) && (this.update_capability == true)) {
-        // Scroll to the selected topic, don't hide anything.
-        // Don't do anything if the edit link has been clicked.
-        if((evt.srcElement||evt.target).parentNode.nodeName == "A") {
-            return;
-        }
         document.getElementById("section-"+topic_no).style.display = "";
         window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
     } else {
         // Make the selected topic visible, scroll to it and hide all other topics.
         if(this.selected_topic != null) {
-            document.getElementById('section-'+ this.selected_topic).style.display = "none";
+            document.getElementById("section-" + this.selected_topic).style.display = "none";
         }
         this.selected_topic = topic_no;
 
-        document.getElementById("section-"+topic_no).style.display = "";
+        document.getElementById("section-" + topic_no).style.display = "";
         // window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
         this.toggle_shadebox();
     }
@@ -106,20 +118,20 @@ M.format_grid.initialize_shadebox = function() {
 }
 
 M.format_grid.toggle_shadebox = function() {
-    if(this.shadebox_open) {
-        this.hide_shadebox();
-        this.shadebox_open = false;
+    if (M.format_grid.shadebox_open) {
+        M.format_grid.hide_shadebox();
+        M.format_grid.shadebox_open = false;
         window.scrollTo(0, 0);
     } else {
-        this.show_shadebox();
-        this.shadebox_open = true;
+        M.format_grid.show_shadebox();
+        M.format_grid.shadebox_open = true;
     }
 }
 
 M.format_grid.show_shadebox = function() {
-    this.update_shadebox();
+    M.format_grid.update_shadebox();
     document.getElementById("shadebox").style.display = "";
-    this.update_shadebox();
+    M.format_grid.update_shadebox();
 }
 
 M.format_grid.hide_shadebox = function() {
