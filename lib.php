@@ -15,13 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains general functions for the course format Topic
+ * Grid Format - A topics based format that uses a grid of user selectable images to popup a light box of the section.
  *
- * @since 2.0
- * @package moodlecore
- * @copyright 2009 Sam Hemelryk
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    course/format
+ * @subpackage grid
+ * @copyright  &copy; 2012 G J Barnard in respect to modifications of standard topics format.
+ * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @author     Based on code originally written by Paul Krix and Julian Ridden.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/format/lib.php'); // For format_base.
@@ -135,7 +138,7 @@ class format_grid extends format_base {
      *
      * @return array This will be passed in ajax respose
      */
-    function ajax_section_move() {
+    public function ajax_section_move() {
         global $PAGE;
         $titles = array();
         $course = $this->get_course();
@@ -249,8 +252,9 @@ class format_grid extends format_base {
     public function grid_get_icon($courseid, $sectionid) {
         global $CFG, $DB;
 
-        if ((!$courseid) || (!$sectionid))
+        if ((!$courseid) || (!$sectionid)) {
             return false;
+        }
 
         if (!$sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
 
@@ -279,7 +283,7 @@ class format_grid extends format_base {
 
             if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
                 throw new moodle_exception('invalidrecordid', 'format_grid', '',
-                        'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
+                    'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
             }
             $summary_status = $new_status;
         }

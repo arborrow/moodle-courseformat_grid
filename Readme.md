@@ -164,6 +164,7 @@ Change by G J Barnard
 30th June 2013 Version 2.5.2 - Stable
 Change by G J Barnard
   1.  Code refactoring to reduce and separate the format as a separate entity.
+  2.  Corrected as much as possible as detected by 'Code Checker' version 2013060600 release 2.2.7.
 
 Authors
 -------

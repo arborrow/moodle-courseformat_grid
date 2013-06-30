@@ -80,7 +80,6 @@ class restore_format_grid_plugin extends restore_format_plugin {
     }
 
     protected function after_execute_structure() {
-        
     }
 
     /**

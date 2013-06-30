@@ -57,7 +57,7 @@ if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context
     course_set_marker($course->id, $marker);
 }
 
-// make sure all sections are created
+// Make sure all sections are created.
 $courseformat = course_get_format($course);
 $course = $courseformat->get_course();
 course_create_sections_if_missing($course, range(0, $course->numsections));
@@ -74,5 +74,5 @@ if (!empty($displaysection)) {
 } else {
     $renderer->print_multiple_section_page($course, null, null, null, null);
 }
-// Include course format js module
+// Include course format js module.
 $PAGE->requires->js('/course/format/grid/format.js');

@@ -31,7 +31,7 @@ require_once($CFG->dirroot . '/course/format/grid/lib.php');
 class format_grid_renderer extends format_section_renderer_base {
 
     private $topic0_at_top; // Boolean to state if section zero is at the top (true) or in the grid (false).
-    private $courseformat; // Our course format object as defined in lib.php;
+    private $courseformat; // Our course format object as defined in lib.php.
 
     /**
      * Generate the starting container html for a list of sections
@@ -100,7 +100,7 @@ class format_grid_renderer extends format_section_renderer_base {
         }
         echo html_writer::start_tag('div', array('id' => 'iconContainer'));
         echo html_writer::start_tag('ul', array('class' => 'icons'));
-        /// Print all of the icons. 
+        // Print all of the icons.
         $this->make_block_icon_topics($context, $modinfo, $course, $editing, $has_cap_update, $has_cap_vishidsect,
                 $url_pic_edit);
         echo html_writer::end_tag('ul');
@@ -113,17 +113,17 @@ class format_grid_renderer extends format_section_renderer_base {
         echo html_writer::tag('img', '', array('id' => 'shadebox_close', 'style' => 'display:none;',
             'src' => $this->output->pix_url('close', 'format_grid'), 'onclick' => 'M.format_grid.toggle_shadebox();'));
         echo $this->start_section_list();
-        /// If currently moving a file then show the current clipboard.
+        // If currently moving a file then show the current clipboard.
         $this->make_block_show_clipboard_if_file_moving($course);
 
-        /// Print Section 0 with general activities.
+        // Print Section 0 with general activities.
         if (!$this->topic0_at_top) {
             $this->make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary,
                     false);
         }
 
-        /// Now all the normal modules by topic.
-        /// Everything below uses "section" terminology - each "section" is a topic/module.
+        // Now all the normal modules by topic.
+        // Everything below uses "section" terminology - each "section" is a topic/module.
         $this->make_block_topics($course, $sections, $modinfo, $editing, $has_cap_update, $has_cap_vishidsect,
                 $str_edit_summary, $url_pic_edit, false);
 
@@ -145,12 +145,14 @@ class format_grid_renderer extends format_section_renderer_base {
     private function make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit,
             $str_edit_summary, $onsectionpage) {
         $section = 0;
-        if (!array_key_exists($section, $sections))
+        if (!array_key_exists($section, $sections)) {
             return false;
+        }
 
         $thissection = $modinfo->get_section_info($section);
-        if (!is_object($thissection))
+        if (!is_object($thissection)) {
             return false;
+        }
 
         if ($this->topic0_at_top) {
             echo html_writer::start_tag('ul', array('class' => 'gtopics-0'));
@@ -229,7 +231,7 @@ class format_grid_renderer extends format_section_renderer_base {
             $thissection = $modinfo->get_section_info($section);
 
             // Check if section is visible to user.
-            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || 
+            $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available ||
                            $thissection->showavailability || !$course->hiddensections));
 
             if ($showsection) {
@@ -431,7 +433,7 @@ class format_grid_renderer extends format_section_renderer_base {
                 }
                 echo html_writer::end_tag('div');
 
-                echo $this->section_availability_message($thissection,has_capability('moodle/course:viewhiddensections',
+                echo $this->section_availability_message($thissection, has_capability('moodle/course:viewhiddensections',
                         $context));
 
                 echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
@@ -441,7 +443,7 @@ class format_grid_renderer extends format_section_renderer_base {
                 echo html_writer::tag('h2', $this->get_title($thissection));
                 echo html_writer::tag('p', get_string('hidden_topic', 'format_grid'));
 
-                echo $this->section_availability_message($thissection,has_capability('moodle/course:viewhiddensections',
+                echo $this->section_availability_message($thissection, has_capability('moodle/course:viewhiddensections',
                         $context));
             }
 
@@ -497,7 +499,7 @@ class format_grid_renderer extends format_section_renderer_base {
      * Attempts to return a 40 character title for the section icon.
      * If section names are set, they are used. Otherwise it scans 
      * the summary for what looks like the first line.
-    */
+     */
     private function get_title($section) {
         $title = is_object($section) && isset($section->name) &&
                 is_string($section->name) ? trim($section->name) : '';
@@ -510,7 +512,7 @@ class format_grid_renderer extends format_section_renderer_base {
         if (empty($title)) {
             $title = trim(format_text($section->summary));
 
-            // Finds first header content. If it is not found, then try to find the first paragraph. 
+            // Finds first header content. If it is not found, then try to find the first paragraph.
             foreach (array('h[1-6]', 'p') as $tag) {
                 if (preg_match('#<(' . $tag . ')\b[^>]*>(?P<text>.*?)</\1>#si', $title, $m)) {
                     if (!_is_empty_text($m['text'])) {
@@ -536,8 +538,9 @@ class format_grid_renderer extends format_section_renderer_base {
         if (strlen($text) > $length) {
             $text = wordwrap($text, $length, "\n", true);
             $pos = strpos($text, "\n");
-            if ($pos === false)
+            if ($pos === false) {
                 $pos = $length;
+            }
             $text = trim(substr($text, 0, $pos)) . $replacer;
         }
         return $text;
@@ -567,8 +570,9 @@ class format_grid_renderer extends format_section_renderer_base {
         foreach ($activity as $url_obj) {
             $list = explode('=', $url_obj->url);
 
-            if ($section->id == $list[1])
+            if ($section->id == $list[1]) {
                 return true;
+            }
         }
         return false;
     }

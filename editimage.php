@@ -1,4 +1,29 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Grid Format - A topics based format that uses a grid of user selectable images to popup a light box of the section.
+ *
+ * @package    course/format
+ * @subpackage grid
+ * @copyright  &copy; 2012 G J Barnard in respect to modifications of standard topics format.
+ * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @author     Based on code originally written by Paul Krix and Julian Ridden.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 /* Imports */
 require_once('../../../config.php');
@@ -55,9 +80,9 @@ $mform = new grid_image_form(null, array(
             'options' => $options));
 
 if ($mform->is_cancelled()) {
-    //Someone has hit the 'cancel' button
+    // Someone has hit the 'cancel' button.
     redirect(new moodle_url($CFG->wwwroot . '/course/view.php?id=' . $course->id));
-} else if ($formdata = $mform->get_data()) { //Form has been submitted    
+} else if ($formdata = $mform->get_data()) { // Form has been submitted.
     $fs = get_file_storage();
 
     if ($newfilename = $mform->get_new_filename('icon_file')) {
@@ -76,7 +101,9 @@ if ($mform->is_cancelled()) {
             'timemodified' => $created);
 
         $temp_file = $mform->save_stored_file(
-                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'], $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.' . $storedfile_record['filename'], true);
+                'icon_file', $storedfile_record['contextid'], $storedfile_record['component'], $storedfile_record['filearea'],
+                             $storedfile_record['itemid'], $storedfile_record['filepath'], 'temp.'.$storedfile_record['filename'],
+                             true);
 
         try {
             $convert_success = true;
@@ -86,7 +113,6 @@ if ($mform->is_cancelled()) {
             $storedfile_record['mimetype'] = $mime;
 
             if ($mime != 'image/gif') {
-                //print_object($temp_file);
                 $tmproot = make_temp_directory('gridformatimage');
                 $tmpfilepath = $tmproot . '/' . $temp_file->get_contenthash();
                 $temp_file->copy_content_to($tmpfilepath);
