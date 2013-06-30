@@ -4,6 +4,18 @@ var selected_topic = null;
  * @namespace
  */
 M.format_grid = M.format_grid || {};
+M.format_grid.ourYUI;
+M.format_grid.num_sections;
+M.format_grid.editing_on;
+M.format_grid.update_capability;
+
+M.format_grid.init = function(Y, the_num_sections, the_editing_on, the_update_capability) {
+    "use strict";
+    this.ourYUI = Y;
+    this.num_sections = the_num_sections;
+    this.editing_on = the_editing_on;
+    this.update_capability = the_update_capability;
+};
 
 M.format_grid.hide_sections = function () {
     //Have to hide the div's using javascript so they are visible if javascript is disabled.
@@ -26,16 +38,25 @@ M.format_grid.hide_sections = function () {
 }
 
 function select_topic(evt, topic_no) {
-    //Make the selected topic visible, scroll to it and hide all other topics.
+    if ((M.format_grid.editing_on == true) && (M.format_grid.update_capability == true)) {
+        //Scroll to the selected topic, don't hide anything.
+        //Don't do anything if the edit link has been clicked.
+        if((evt.srcElement||evt.target).parentNode.nodeName == "A") {
+            return;
+        }
+        document.getElementById("section-"+topic_no).style.display = "";
+        window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
+    } else {
+        //Make the selected topic visible, scroll to it and hide all other topics.
+        if(selected_topic != null) {
+            document.getElementById('section-'+selected_topic).style.display = "none";
+        }
+        selected_topic = topic_no;
 
-    if(selected_topic != null) {
-        document.getElementById('section-'+selected_topic).style.display = "none";
+        document.getElementById("section-"+topic_no).style.display = "";
+        //window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
+        toggle_shadebox();
     }
-    selected_topic = topic_no;
-
-    document.getElementById("section-"+topic_no).style.display = "";
-    //window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
-    toggle_shadebox();
     return true;
 }
 

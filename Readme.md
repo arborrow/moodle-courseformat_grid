@@ -161,6 +161,10 @@ Change by G J Barnard
 Change by G J Barnard
   1.  First stable version for Moodle 2.5 stable.
 
+30th June 2013 Version 2.5.2 - Stable
+Change by G J Barnard
+  1.  Code refactoring to reduce and separate the format as a separate entity.
+
 Authors
 -------
 J Ridden - Moodle profile: https://moodle.org/user/profile.php?id=39680 - Web: http://www.moodleman.net

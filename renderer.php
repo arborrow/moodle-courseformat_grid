@@ -284,11 +284,11 @@ class format_grid_renderer extends format_section_renderer_base {
             if ($showsection) {
                 if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
                     //Get the module icon
-                    if ($editing && $has_cap_update) {
-                        $onclickevent = "select_topic_edit(event, {$thissection->section})";
-                    } else {
+                    //if ($editing && $has_cap_update) {
+                    //    $onclickevent = "select_topic_edit(event, {$thissection->section})";
+                    //} else {
                         $onclickevent = "select_topic(event, {$thissection->section})";
-                    }
+                    //}
 
                     echo html_writer::start_tag('li');
                     echo html_writer::start_tag('a', array(
