@@ -62,11 +62,6 @@ $courseformat = course_get_format($course);
 $course = $courseformat->get_course();
 course_create_sections_if_missing($course, range(0, $course->numsections));
 
-$PAGE->requires->js_init_call('M.format_grid.init', array(
-    $course->numsections,
-    $PAGE->user_is_editing(),
-    has_capability('moodle/course:update', $context)));
-
 $renderer = $PAGE->get_renderer('format_grid');
 
 if (!empty($displaysection)) {
@@ -74,5 +69,12 @@ if (!empty($displaysection)) {
 } else {
     $renderer->print_multiple_section_page($course, null, null, null, null);
 }
+
+// Initialise the functionality:...
+$PAGE->requires->js_init_call('M.format_grid.init', array(
+    $course->numsections,
+    $PAGE->user_is_editing(),
+    has_capability('moodle/course:update', $context)));
+
 // Include course format js module.
 $PAGE->requires->js('/course/format/grid/format.js');

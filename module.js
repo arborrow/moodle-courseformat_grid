@@ -23,9 +23,8 @@
  * @author     Based on code originally written by Paul Krix and Julian Ridden.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-var selected_topic = null;
 
-/**
+ /**
  * @namespace
  */
 M.format_grid = M.format_grid || {};
@@ -33,6 +32,7 @@ M.format_grid.ourYUI;
 M.format_grid.num_sections;
 M.format_grid.editing_on;
 M.format_grid.update_capability;
+M.format_grid.selected_topic;
 
 M.format_grid.init = function(Y, the_num_sections, the_editing_on, the_update_capability) {
     "use strict";
@@ -40,6 +40,7 @@ M.format_grid.init = function(Y, the_num_sections, the_editing_on, the_update_ca
     this.num_sections = the_num_sections;
     this.editing_on = the_editing_on;
     this.update_capability = the_update_capability;
+    this.selected_topic = null;
 };
 
 M.format_grid.hide_sections = function () {
@@ -73,10 +74,10 @@ M.format_grid.select_topic = function(evt, topic_no) {
         window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
     } else {
         // Make the selected topic visible, scroll to it and hide all other topics.
-        if(selected_topic != null) {
-            document.getElementById('section-'+selected_topic).style.display = "none";
+        if(this.selected_topic != null) {
+            document.getElementById('section-'+ this.selected_topic).style.display = "none";
         }
-        selected_topic = topic_no;
+        this.selected_topic = topic_no;
 
         document.getElementById("section-"+topic_no).style.display = "";
         // window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
