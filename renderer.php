@@ -30,7 +30,8 @@ require_once($CFG->dirroot . '/course/format/grid/lib.php');
 
 class format_grid_renderer extends format_section_renderer_base {
 
-    private $topic0_at_top;
+    private $topic0_at_top; // Boolean to state if section zero is at the top (true) or in the grid (false).
+    private $courseformat; // Our course format object as defined in lib.php;
 
     /**
      * Generate the starting container html for a list of sections
@@ -57,65 +58,6 @@ class format_grid_renderer extends format_section_renderer_base {
     }
 
     /**
-     * Generate the display of the header part of a section before
-     * course modules are included - currently not used but needed for the future.
-     *
-     * @param stdClass $section The course_section entry from DB
-     * @param stdClass $course The course entry from DB
-     * @param bool $onsectionpage true if being printed on a single-section page
-     * @param int $sectionreturn The section to return to after an action
-     * @return string HTML to output.
-     */
-    protected function section_header($section, $course, $onsectionpage, $sectionreturn = 0) {
-        global $PAGE;
-
-        $o = '';
-        $sectionstyle = '';
-
-        if ($section->section != 0) {
-            // Only in the non-general sections.
-            if (!$section->visible) {
-                $sectionstyle = ' hidden';
-            } else if (course_get_format($course)->is_section_current($section)) {
-                $sectionstyle = ' current';
-            }
-        }
-        if ($section->section == 0) {
-            $sectionstyle.= ($this->topic0_at_top ? '' : ' grid_section');
-        } else {
-            $sectionstyle .= ' grid_section';
-        }
-        $o.= html_writer::start_tag('li', array('id' => 'section-' . $section->section,
-                    'class' => 'section main clearfix' . $sectionstyle));
-
-        $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $leftcontent, array('class' => 'left side'));
-
-        $rightcontent = $this->section_right_content($section, $course, $onsectionpage);
-        $o.= html_writer::tag('div', $rightcontent, array('class' => 'right side'));
-        $o.= html_writer::start_tag('div', array('class' => 'content'));
-
-        if (!$onsectionpage) {
-            $o.= $this->output->heading($this->section_title($section, $course), 3, 'sectionname');
-        }
-
-        $o.= html_writer::start_tag('div', array('class' => 'summary'));
-        $o.= $this->format_summary_text($section);
-
-        $context = context_course::instance($course->id);
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', $context)) {
-            $url = new moodle_url('/course/editsection.php', array('id' => $section->id, 'sr' => $sectionreturn));
-
-            $o.= html_writer::link($url, html_writer::empty_tag('img', array('src' => $this->output->pix_url('t/edit'), 'class' => 'iconsmall edit')), array('title' => get_string('editsummary')));
-        }
-        $o.= html_writer::end_tag('div');
-
-        $o .= $this->section_availability_message($section,has_capability('moodle/course:viewhiddensections', $context));
-
-        return $o;
-    }
-
-    /**
      * Output the html for a multiple section page
      *
      * @param stdClass $course The course entry from DB
@@ -125,10 +67,11 @@ class format_grid_renderer extends format_section_renderer_base {
      * @param array $modnamesused
      */
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
-
         global $PAGE;
 
-        $summary_status = _get_summary_visibility($course->id);
+        $this->courseformat = course_get_format($course);
+
+        $summary_status = $this->courseformat->get_summary_visibility($course->id);
         $context = context_course::instance($course->id);
         $editing = $PAGE->user_is_editing();
         $has_cap_update = has_capability('moodle/course:update', $context);
@@ -149,8 +92,7 @@ class format_grid_renderer extends format_section_renderer_base {
         $modinfo = get_fast_modinfo($course);
         $sections = $modinfo->get_section_info_all();
 
-        //start at 1 to skip the summary block
-        //or include the summary block if it's in the grid display
+        // Start at 1 to skip the summary block or include the summary block if it's in the grid display.
         $this->topic0_at_top = $summary_status->showsummary == 1;
         if ($this->topic0_at_top) {
             $this->topic0_at_top = $this->make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
@@ -162,20 +104,20 @@ class format_grid_renderer extends format_section_renderer_base {
         echo html_writer::end_tag('ul');
         echo html_writer::end_tag('div');
         echo html_writer::start_tag('div', array('id' => 'shadebox'));
-        echo html_writer::tag('div', '', array('id' => 'shadebox_overlay', 'style' => 'display:none;', 'onclick' => 'toggle_shadebox();'));
+        echo html_writer::tag('div', '', array('id' => 'shadebox_overlay', 'style' => 'display:none;', 'onclick' => 'M.format_grid.toggle_shadebox();'));
         echo html_writer::start_tag('div', array('id' => 'shadebox_content'));
 
-        echo html_writer::tag('img', '', array('id' => 'shadebox_close', 'style' => 'display:none;', 'src' => $this->output->pix_url('close', 'format_grid'), 'onclick' => 'toggle_shadebox();'));
+        echo html_writer::tag('img', '', array('id' => 'shadebox_close', 'style' => 'display:none;', 'src' => $this->output->pix_url('close', 'format_grid'), 'onclick' => 'M.format_grid.toggle_shadebox();'));
         echo $this->start_section_list();
-        /// If currently moving a file then show the current clipboard
+        /// If currently moving a file then show the current clipboard.
         $this->make_block_show_clipboard_if_file_moving($course);
 
-        /// Print Section 0 with general activities
+        /// Print Section 0 with general activities.
         if (!$this->topic0_at_top) {
             $this->make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, false);
         }
 
-        /// Now all the normal modules by topic
+        /// Now all the normal modules by topic.
         /// Everything below uses "section" terminology - each "section" is a topic/module.
         $this->make_block_topics($course, $sections, $modinfo, $editing, $has_cap_update, $has_cap_vishidsect, $str_edit_summary, $url_pic_edit, false);
 
@@ -184,16 +126,16 @@ class format_grid_renderer extends format_section_renderer_base {
         echo html_writer::tag('div', '&nbsp;', array('class' => 'clearer'));
         echo html_writer::end_tag('div');
 
-        //echo html_writer::script('', $CFG->wwwroot . '/course/format/grid/module.js');
-        $PAGE->requires->js('/course/format/grid/module.js');
         if (!$editing || !$has_cap_update) {
-            //echo html_writer::script('hide_sections();');
             $PAGE->requires->js_init_call('M.format_grid.hide_sections', array());
         }
         echo html_writer::end_tag('div');
     }
 
-    // Grid format specific code
+    // Grid format specific code.
+    /**
+     * Makes section zero.
+     */
     private function make_block_topic0($course, $sections, $modinfo, $editing, $has_cap_update, $url_pic_edit, $str_edit_summary, $onsectionpage) {
         $section = 0;
         if (!array_key_exists($section, $sections))
@@ -205,7 +147,6 @@ class format_grid_renderer extends format_section_renderer_base {
 
         if ($this->topic0_at_top) {
             echo html_writer::start_tag('ul', array('class' => 'gtopics-0'));
-            //echo $this->start_section_list();
         }
         echo html_writer::start_tag('li', array(
             'id' => 'section-0',
@@ -233,8 +174,6 @@ class format_grid_renderer extends format_section_renderer_base {
         }
         echo html_writer::end_tag('div');
 
-        //$this->section_header($thissection, $course, $onsectionpage);
-
         echo $this->courserenderer->course_section_cm_list($course, $thissection, 0);
 
         if ($editing) {
@@ -245,7 +184,7 @@ class format_grid_renderer extends format_section_renderer_base {
                 $str_hide_summary_alt = get_string('hide_summary_alt', 'format_grid');
 
                 echo html_writer::link(
-                        _grid_moodle_url('mod_summary.php', array(
+                        $this->courseformat->grid_moodle_url('mod_summary.php', array(
                             'sesskey' => sesskey(),
                             'course' => $course->id,
                             'showsummary' => 0)), html_writer::empty_tag('img', array(
@@ -258,11 +197,13 @@ class format_grid_renderer extends format_section_renderer_base {
 
         if ($this->topic0_at_top) {
             echo html_writer::end_tag('ul');
-            //echo $this->end_section_list();
         }
         return true;
     }
 
+    /**
+     * Makes the grid icons.
+     */
     private function make_block_icon_topics($context, $modinfo, $course, $editing, $has_cap_update, $has_cap_vishidsect, $url_pic_edit) {
         global $USER;
 
@@ -273,22 +214,17 @@ class format_grid_renderer extends format_section_renderer_base {
             $str_edit_image_alt = get_string('editimage_alt', 'format_grid');
         }
 
-        //start at 1 to skip the summary block
-        //or include the summary block if it's in the grid display
+        // Start at 1 to skip the summary block or include the summary block if it's in the grid display.
         for ($section = $this->topic0_at_top ? 1 : 0; $section <= $course->numsections; $section++) {
             $thissection = $modinfo->get_section_info($section);
 
-            //check if section is visible to user
+            // Check if section is visible to user.
             $showsection = $has_cap_vishidsect || ($thissection->visible && ($thissection->available || $thissection->showavailability || !$course->hiddensections));
 
             if ($showsection) {
                 if ($course->coursedisplay != COURSE_DISPLAY_MULTIPAGE) {
-                    //Get the module icon
-                    //if ($editing && $has_cap_update) {
-                    //    $onclickevent = "select_topic_edit(event, {$thissection->section})";
-                    //} else {
-                        $onclickevent = "select_topic(event, {$thissection->section})";
-                    //}
+                    // Get the module icon.
+                    $onclickevent = "M.format_grid.select_topic(event, {$thissection->section})";
 
                     echo html_writer::start_tag('li');
                     echo html_writer::start_tag('a', array(
@@ -296,7 +232,6 @@ class format_grid_renderer extends format_section_renderer_base {
                         'class' => 'icon_link',
                         'onclick' => $onclickevent));
 
-                    //echo html_writer::tag('p', $this->section_title($thissection, $course), array('class' => 'icon_content'));
                     echo html_writer::tag('p', get_section_name($course, $thissection), array('class' => 'icon_content'));
 
                     if ($this->new_activity($thissection, $course)) {
@@ -308,7 +243,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
                     echo html_writer::start_tag('div', array('class' => 'image_holder'));
 
-                    $sectionicon = _grid_get_icon(
+                    $sectionicon = $this->courseformat->grid_get_icon(
                             $course->id, $thissection->id);
 
                     if (is_object($sectionicon) && !empty($sectionicon->imagepath)) {
@@ -326,7 +261,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
                     if ($editing && $has_cap_update) {
                         echo html_writer::link(
-                                _grid_moodle_url('editimage.php', array(
+                                $this->courseformat->grid_moodle_url('editimage.php', array(
                                     'sectionid' => $thissection->id,
                                     'contextid' => $context->id,
                                     'userid' => $USER->id)), html_writer::empty_tag('img', array(
@@ -338,7 +273,7 @@ class format_grid_renderer extends format_section_renderer_base {
                             $str_display_summary_alt = get_string('display_summary_alt', 'format_grid');
 
                             echo html_writer::empty_tag('br') . html_writer::link(
-                                    _grid_moodle_url('mod_summary.php', array(
+                                    $this->courseformat->grid_moodle_url('mod_summary.php', array(
                                         'sesskey' => sesskey(),
                                         'course' => $course->id,
                                         'showsummary' => 1)), html_writer::empty_tag('img', array(
@@ -361,7 +296,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
                     $title .= html_writer::start_tag('div', array('class' => 'image_holder'));
 
-                    $sectionicon = _grid_get_icon(
+                    $sectionicon = $this->courseformat->grid_get_icon(
                             $course->id, $thissection->id);
 
                     if (is_object($sectionicon) && !empty($sectionicon->imagepath)) {
@@ -384,7 +319,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
                     if ($editing && $has_cap_update) {
                         echo html_writer::link(
-                                _grid_moodle_url('editimage.php', array(
+                                $this->courseformat->grid_moodle_url('editimage.php', array(
                                     'sectionid' => $thissection->id,
                                     'contextid' => $context->id,
                                     'userid' => $USER->id)), html_writer::empty_tag('img', array(
@@ -396,7 +331,7 @@ class format_grid_renderer extends format_section_renderer_base {
                             $str_display_summary_alt = get_string('display_summary_alt', 'format_grid');
 
                             echo html_writer::empty_tag('br') . html_writer::link(
-                                    _grid_moodle_url('mod_summary.php', array(
+                                    $this->courseformat->grid_moodle_url('mod_summary.php', array(
                                         'sesskey' => sesskey(),
                                         'course' => $course->id,
                                         'showsummary' => 1)), html_writer::empty_tag('img', array(
@@ -410,7 +345,9 @@ class format_grid_renderer extends format_section_renderer_base {
         }
     }
 
-/// If currently moving a file then show the current clipboard
+    /**
+     * If currently moving a file then show the current clipboard.
+     */
     private function make_block_show_clipboard_if_file_moving($course) {
         global $USER;
 
@@ -428,8 +365,10 @@ class format_grid_renderer extends format_section_renderer_base {
         }
     }
 
+    /**
+     * Makes the list of sections to show.
+     */
     private function make_block_topics($course, $sections, $modinfo, $editing, $has_cap_update, $has_cap_vishidsect, $str_edit_summary, $url_pic_edit, $onsectionpage) {
-
         $context = context_course::instance($course->id);
         unset($sections[0]);
         for ($section = 1; $section <= $course->numsections; $section++) {
@@ -451,7 +390,6 @@ class format_grid_renderer extends format_section_renderer_base {
                 'class' => $sectionstyle));
 
             // Note, 'left side' is BEFORE content.
-            //echo html_writer::tag('div', html_writer::tag('span', $section), array('class' => 'left side'));
             $leftcontent = $this->section_left_content($thissection, $course, $onsectionpage);
             echo html_writer::tag('div', $leftcontent, array('class' => 'left side'));
             // Note, 'right side' is BEFORE content.
@@ -460,7 +398,7 @@ class format_grid_renderer extends format_section_renderer_base {
 
             echo html_writer::start_tag('div', array('class' => 'content'));
             if ($has_cap_vishidsect || ($thissection->visible && $thissection->available)) {
-                //if visible
+                // If visible.
                 echo $this->output->heading(get_section_name($course, $thissection), 3, 'sectionname');
 
                 echo html_writer::start_tag('div', array('class' => 'summary'));
@@ -498,7 +436,7 @@ class format_grid_renderer extends format_section_renderer_base {
             // Print stealth sections if present.
             foreach ($modinfo->get_section_info_all() as $section => $thissection) {
                 if ($section <= $course->numsections or empty($modinfo->sections[$section])) {
-                    // this is not stealth section or it is empty
+                    // This is not stealth section or it is empty.
                     continue;
                 }
                 echo $this->stealth_section_header($section);
@@ -536,23 +474,24 @@ class format_grid_renderer extends format_section_renderer_base {
         }
     }
 
-//Attempts to return a 40 character title for the section icon.
-//If section names are set, they are used. Otherwise it scans 
-//the summary for what looks like the first line.
+    /**
+     * Attempts to return a 40 character title for the section icon.
+     * If section names are set, they are used. Otherwise it scans 
+     * the summary for what looks like the first line.
+    */
     private function get_title($section) {
         $title = is_object($section) && isset($section->name) &&
                 is_string($section->name) ? trim($section->name) : '';
 
         if (!empty($title)) {
-            // Apply filters and clean tags
+            // Apply filters and clean tags.
             $title = trim(format_string($section->name, true));
         }
 
         if (empty($title)) {
             $title = trim(format_text($section->summary));
 
-            // Finds first header content. If it doesn't found,
-            // trying to find first paragraph. 
+            // Finds first header content. If it is not found, then try to find the first paragraph. 
             foreach (array('h[1-6]', 'p') as $tag) {
                 if (preg_match('#<(' . $tag . ')\b[^>]*>(?P<text>.*?)</\1>#si', $title, $m)) {
                     if (!_is_empty_text($m['text'])) {
@@ -571,7 +510,9 @@ class format_grid_renderer extends format_section_renderer_base {
         return $title;
     }
 
-// Cutes long texts up to certain length without breaking words
+    /**
+     * Cutes long texts up to certain length without breaking words.
+     */
     private function text_limit($text, $length, $replacer = '...') {
         if (strlen($text) > $length) {
             $text = wordwrap($text, $length, "\n", true);
@@ -583,7 +524,9 @@ class format_grid_renderer extends format_section_renderer_base {
         return $text;
     }
 
-//Checks whether there has been new activity in section $section
+    /**
+     * Checks whether there has been new activity in section $section.
+     */
     private function new_activity($section, $course) {
         global $CFG, $USER, $DB;
 
@@ -610,5 +553,4 @@ class format_grid_renderer extends format_section_renderer_base {
         }
         return false;
     }
-
 }

@@ -236,6 +236,73 @@ class format_grid extends format_base {
         return $courseformatoptions;
     }
 
+    // Grid specific methods...
+    public function grid_moodle_url($url, array $params = null) {
+        return new moodle_url('/course/format/grid/' . $url, $params);
+    }
+
+    public function is_empty_text($text) {
+        return empty($text) ||
+                preg_match('/^(?:\s|&nbsp;)*$/si', htmlentities($text, 0 /* ENT_HTML401 */, 'UTF-8', true));
+    }
+
+    public function grid_get_icon($courseid, $sectionid) {
+        global $CFG, $DB;
+
+        if ((!$courseid) || (!$sectionid))
+            return false;
+
+        if (!$sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
+
+            $newicon = new stdClass();
+            $newicon->sectionid = $sectionid;
+            $newicon->courseid = $courseid;
+
+            if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon, true)) {
+                throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                        'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
+            }
+            $sectionicon = false;
+        }
+        return $sectionicon;
+    }
+
+    /**
+     * Get section icon, if it doesnt exist create it.
+     */
+    public function get_summary_visibility($course) {
+        global $CFG, $DB;
+        if (!$summary_status = $DB->get_record('format_grid_summary', array('courseid' => $course))) {
+            $new_status = new stdClass();
+            $new_status->courseid = $course;
+            $new_status->showsummary = 1;
+
+            if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
+                throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                        'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
+            }
+            $summary_status = $new_status;
+        }
+        return $summary_status;
+    }
+
+    // Is this needed???
+    public function move_section_arrow($section, $course, $op_move_delta, $op_move_style, $str_move_text, $url_pic_move) {
+        $url = new moodle_url('/course/view.php#section-' . ($section + $op_move_delta), array(
+                    'id' => $course->id,
+                    'random' => rand(1, 10000),
+                    'section' => $section,
+                    'move' => $op_move_delta,
+                    'sesskey' => sesskey()));
+
+        $img = html_writer::empty_tag('img', array(
+                    'src' => $url_pic_move,
+                    'alt' => $str_move_text,
+                    'class' => 'icon ' . $op_move_style));
+
+        return html_writer::link($url, $img, array(
+                    'title' => $str_move_text));
+    }
 }
 
 /**
@@ -279,71 +346,4 @@ function format_grid_delete_course($courseid) {
 
     $DB->delete_records("format_grid_icon", array("courseid" => $courseid));
     $DB->delete_records("format_grid_summary", array("courseid" => $courseid));
-}
-
-// Grid specific functions...
-function _grid_moodle_url($url, array $params = null) {
-    return new moodle_url('/course/format/grid/' . $url, $params);
-}
-
-function _is_empty_text($text) {
-    return empty($text) ||
-            preg_match('/^(?:\s|&nbsp;)*$/si', htmlentities($text, 0 /* ENT_HTML401 */, 'UTF-8', true));
-}
-
-function _grid_get_icon($courseid, $sectionid) {
-    global $CFG, $DB;
-
-    if ((!$courseid) || (!$sectionid))
-        return false;
-
-    if (!$sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
-
-        $newicon = new stdClass();
-        $newicon->sectionid = $sectionid;
-        $newicon->courseid = $courseid;
-
-        if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon, true)) {
-            throw new moodle_exception('invalidrecordid', 'format_grid', '',
-                    'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
-        }
-        $sectionicon = false;
-    }
-    return $sectionicon;
-}
-
-//get section icon, if it doesnt exist create it.
-function _get_summary_visibility($course) {
-    global $CFG, $DB;
-    if (!$summary_status = $DB->get_record('format_grid_summary', array('courseid' => $course))) {
-        $new_status = new stdClass();
-        $new_status->courseid = $course;
-        $new_status->showsummary = 1;
-
-        if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
-            throw new moodle_exception('invalidrecordid', 'format_grid', '',
-                    'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
-        }
-        $summary_status = $new_status;
-    }
-    return $summary_status;
-}
-
-// Is this needed???
-function _move_section_arrow($section, $course, $op_move_delta, $op_move_style, $str_move_text, $url_pic_move) {
-
-    $url = new moodle_url('/course/view.php#section-' . ($section + $op_move_delta), array(
-                'id' => $course->id,
-                'random' => rand(1, 10000),
-                'section' => $section,
-                'move' => $op_move_delta,
-                'sesskey' => sesskey()));
-
-    $img = html_writer::empty_tag('img', array(
-                'src' => $url_pic_move,
-                'alt' => $str_move_text,
-                'class' => 'icon ' . $op_move_style));
-
-    return html_writer::link($url, $img, array(
-                'title' => $str_move_text));
 }
