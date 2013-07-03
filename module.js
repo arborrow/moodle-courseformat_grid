@@ -28,6 +28,7 @@
  * @namespace
  */
 M.format_grid = M.format_grid || {};
+M.format_grid.shadebox = M.format_grid.shadebox || {};
 M.format_grid.ourYUI;
 M.format_grid.editing_on;
 M.format_grid.update_capability;
@@ -44,18 +45,12 @@ M.format_grid.init = function(Y, the_editing_on, the_update_capability) {
 
     var shadeboxtoggleone = Y.one("#shadebox_overlay");
     if (shadeboxtoggleone) {
-        shadeboxtoggleone.on('click', this.toggle_shadebox);
+        shadeboxtoggleone.on('click', this.shadebox.toggle_shadebox);
     }
     var shadeboxtoggletwo = Y.one("#shadebox_close");
     if (shadeboxtoggletwo) {
-        shadeboxtoggletwo.on('click', this.toggle_shadebox);
+        shadeboxtoggletwo.on('click', this.shadebox.toggle_shadebox);
     }
-
-    Y.use('node-event-delegate', 'event-key', function (Y) { 
-        var theshadebox = Y.one("#shadebox");
-        //theshadebox.delegate('key', this.toggle_shadebox, 'press:67,99'); // The 'C' key.
-        theshadebox.delegate('key', M.format_grid.toggle_shadebox, 'esc'); // The 'C' key.
-    });
 };
 
 M.format_grid.hide_sections = function () {
@@ -71,10 +66,10 @@ M.format_grid.hide_sections = function () {
     }
     document.getElementById("shadebox_close").style.display = "";
 
-    M.format_grid.initialize_shadebox();
-    M.format_grid.update_shadebox();
+    M.format_grid.shadebox.initialize_shadebox();
+    M.format_grid.shadebox.update_shadebox();
     window.onresize = function() {
-        M.format_grid.update_shadebox();
+        M.format_grid.shadebox.update_shadebox();
     }
 }
 
@@ -98,15 +93,15 @@ M.format_grid.select_topic = function(topic_no) {
 
         document.getElementById("section-" + topic_no).style.display = "";
         // window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
-        this.toggle_shadebox();
+        this.shadebox.toggle_shadebox();
     }
     return true;
 }
 
 /** Below is shadebox code **/
-M.format_grid.shadebox_open;
+M.format_grid.shadebox.shadebox_open;
 
-M.format_grid.initialize_shadebox = function() {
+M.format_grid.shadebox.initialize_shadebox = function() {
     this.shadebox_open = false;
     this.hide_shadebox();
 
@@ -122,30 +117,30 @@ M.format_grid.initialize_shadebox = function() {
     content.style.zIndex = '9000001';
 }
 
-M.format_grid.toggle_shadebox = function() {
-    if (M.format_grid.shadebox_open) {
-        M.format_grid.hide_shadebox();
-        M.format_grid.shadebox_open = false;
+M.format_grid.shadebox.toggle_shadebox = function() {
+    if (M.format_grid.shadebox.shadebox_open) {
+        M.format_grid.shadebox.hide_shadebox();
+        M.format_grid.shadebox.shadebox_open = false;
         window.scrollTo(0, 0);
     } else {
-        M.format_grid.show_shadebox();
-        M.format_grid.shadebox_open = true;
+        M.format_grid.shadebox.show_shadebox();
+        M.format_grid.shadebox.shadebox_open = true;
     }
 }
 
-M.format_grid.show_shadebox = function() {
-    M.format_grid.update_shadebox();
+M.format_grid.shadebox.show_shadebox = function() {
+    M.format_grid.shadebox.update_shadebox();
     document.getElementById("shadebox").style.display = "";
-    M.format_grid.update_shadebox();
+    M.format_grid.shadebox.update_shadebox();
 }
 
-M.format_grid.hide_shadebox = function() {
+M.format_grid.shadebox.hide_shadebox = function() {
     document.getElementById("shadebox").style.display = "none";
 }
 
 // Code from quirksmode.org.
 // Author unknown.
-M.format_grid.get_page_size = function() {
+M.format_grid.shadebox.get_page_size = function() {
     var xScroll, yScroll;
     if(window.innerHeight && window.scrollMaxY) {
         xScroll = document.body.scrollWidth;
@@ -188,7 +183,7 @@ M.format_grid.get_page_size = function() {
     return arrayPageSize;
 }
 
-M.format_grid.update_shadebox = function() {
+M.format_grid.shadebox.update_shadebox = function() {
     // Make the overlay fullscreen (width happens automatically, so just update the height).
     var overlay = document.getElementById("shadebox_overlay");
     var pagesize = this.get_page_size();
