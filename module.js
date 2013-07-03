@@ -50,7 +50,12 @@ M.format_grid.init = function(Y, the_editing_on, the_update_capability) {
     if (shadeboxtoggletwo) {
         shadeboxtoggletwo.on('click', this.toggle_shadebox);
     }
-    //Y.delegate('key', this.toggle_shadebox, '#shadebox', 'press:67,99'); // The 'C' key.
+
+    Y.use('node-event-delegate', 'event-key', function (Y) { 
+        var theshadebox = Y.one("#shadebox");
+        //theshadebox.delegate('key', this.toggle_shadebox, 'press:67,99'); // The 'C' key.
+        theshadebox.delegate('key', M.format_grid.toggle_shadebox, 'esc'); // The 'C' key.
+    });
 };
 
 M.format_grid.hide_sections = function () {
