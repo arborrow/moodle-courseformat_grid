@@ -111,44 +111,16 @@ Roadmap
 
 History
 =============
-
-18th December 2012 - Version 2.4.0.1 - Alpha version, not for production servers.
+5th July 2013 Version 2.5.2 - Stable
 Change by G J Barnard
-  1. First alpha release for Moodle 2.4
+  1.  Code refactoring to reduce and separate the format as a separate entity.
+  2.  Corrected as much as possible as detected by 'Code Checker' version 2013060600 release 2.2.7.
+  3.  Once the first box is shown then the 'Enter' key will toggle the 'current' box hidden and shown.
+  4.  Changed the order of the history so that the latest change is at the top.
 
-18th December 2012 - Version 2.4.0.2 - Alpha version, not for production servers.
+14th May 2013 Version 2.5.1 - Stable
 Change by G J Barnard
-  1. Second alpha release for Moodle 2.4
-
-21st December 2012 - Version 2.4.0.3 - Beta version, not for production servers.
-Change by G J Barnard
-  1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
-
-3rd January 2013 - Version 2.4.0.4 - Beta version, not for production servers.
-Change by G J Barnard
-  1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
-
-9th January 2013 - Version 2.4.0.5 - Beta version, not for production servers.
-Change by G J Barnard
-  1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
-  2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
-
-12th January 2013 - Version 2.5.0.1 - Alpha version, not for production servers.
-1. Migrated code to Moodle 2.5 development version.
-
-21st January 2013 - Version 2.4.0.2 - Alpha version, not for production servers.
-Change by G J Barnard
-  1. Changes to 'renderer.php' because of MDL-36095 hence requiring Moodle version 2012120301.02 release 2.4.1+ (Build: 20130118) and above.
-
-24th February 2013 - Version 2.4.1 - Stable version.
-Change by G J Barnard
-  1. Changes because of MDL-37901.
-  2. Invisible section fix for Tim Wilde - https://moodle.org/mod/forum/discuss.php?d=218505#p959249.
-  3. This version considered 'Stable' from feedback of Theo Konings on CONTRIB-3534.
-
-13th April 2013 - Version 2.5.0.1 - Beta version.
-Change by G J Barnard
-  1. First 'Beta' release for Moodle 2.5 Beta.
+  1.  First stable version for Moodle 2.5 stable.
 
 12th May 2013 - Version 2.5.0.2 - Beta
 Change by G J Barnard
@@ -157,14 +129,43 @@ Change by G J Barnard
      manual 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches'.
   3. Changes for MDL-39542.
 
-14th May 2013 Version 2.5.1 - Stable
+13th April 2013 - Version 2.5.0.1 - Beta version.
 Change by G J Barnard
-  1.  First stable version for Moodle 2.5 stable.
+  1. First 'Beta' release for Moodle 2.5 Beta.
 
-30th June 2013 Version 2.5.2 - Stable
+24th February 2013 - Version 2.4.1 - Stable version.
 Change by G J Barnard
-  1.  Code refactoring to reduce and separate the format as a separate entity.
-  2.  Corrected as much as possible as detected by 'Code Checker' version 2013060600 release 2.2.7.
+  1. Changes because of MDL-37901.
+  2. Invisible section fix for Tim Wilde - https://moodle.org/mod/forum/discuss.php?d=218505#p959249.
+  3. This version considered 'Stable' from feedback of Theo Konings on CONTRIB-3534.
+
+21st January 2013 - Version 2.4.0.2 - Alpha version, not for production servers.
+Change by G J Barnard
+  1. Changes to 'renderer.php' because of MDL-36095 hence requiring Moodle version 2012120301.02 release 2.4.1+ (Build: 20130118) and above.
+
+12th January 2013 - Version 2.5.0.1 - Alpha version, not for production servers.
+1. Migrated code to Moodle 2.5 development version.
+
+9th January 2013 - Version 2.4.0.5 - Beta version, not for production servers.
+Change by G J Barnard
+  1. Fixed issue in editimage.php where the GD library needs to be used for image conversion for transparent PNG's.
+  2. Perform a 'Purge all caches' under 'Home -> Site administration -> Development -> Purge all caches' after this is installed.
+
+3rd January 2013 - Version 2.4.0.4 - Beta version, not for production servers.
+Change by G J Barnard
+  1. Fixed issue where the grid did not function in 'One section per page mode' on the course settings.
+
+21st December 2012 - Version 2.4.0.3 - Beta version, not for production servers.
+Change by G J Barnard
+  1. Hopefully eliminated BOM issue (http://docs.moodle.org/24/en/UTF-8_and_BOM) that was causing the failure of the images to display.
+
+18th December 2012 - Version 2.4.0.2 - Alpha version, not for production servers.
+Change by G J Barnard
+  1. Second alpha release for Moodle 2.4
+
+18th December 2012 - Version 2.4.0.1 - Alpha version, not for production servers.
+Change by G J Barnard
+  1. First alpha release for Moodle 2.4
 
 Authors
 -------

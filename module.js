@@ -28,11 +28,12 @@
  * @namespace
  */
 M.format_grid = M.format_grid || {};
-M.format_grid.shadebox = M.format_grid.shadebox || {};
-M.format_grid.ourYUI;
-M.format_grid.editing_on;
-M.format_grid.update_capability;
-M.format_grid.selected_topic;
+M.format_grid.shadebox = M.format_grid.shadebox || {
+    ourYUI: null,
+    editing_on: null,
+    update_capability: null,
+    selected_topic: null
+};
 
 M.format_grid.init = function(Y, the_editing_on, the_update_capability) {
     "use strict";
@@ -41,19 +42,20 @@ M.format_grid.init = function(Y, the_editing_on, the_update_capability) {
     this.update_capability = the_update_capability;
     this.selected_topic = null;
 
-    Y.delegate('click', this.icon_click, Y.config.doc, 'ul.gridicons a', this);
+    Y.delegate('click', this.icon_click, Y.config.doc, 'ul.gridicons a.gridicon_link', this);
 
     var shadeboxtoggleone = Y.one("#shadebox_overlay");
     if (shadeboxtoggleone) {
-        shadeboxtoggleone.on('click', this.shadebox.toggle_shadebox);
+        shadeboxtoggleone.on('click', this.shadebox.toggle_shadebox, this.shadebox);
     }
     var shadeboxtoggletwo = Y.one("#shadebox_close");
     if (shadeboxtoggletwo) {
-        shadeboxtoggletwo.on('click', this.shadebox.toggle_shadebox);
+        shadeboxtoggletwo.on('click', this.shadebox.toggle_shadebox, this.shadebox);
     }
 };
 
 M.format_grid.hide_sections = function () {
+    "use strict";
     // Have to hide the div's using javascript so they are visible if javascript is disabled.
     var grid_sections = getElementsByClassName(document.getElementById("middle-column"), "li", "grid_section");
     for(var i = 0; i < grid_sections.length; i++) {
@@ -74,6 +76,7 @@ M.format_grid.hide_sections = function () {
 }
 
 M.format_grid.icon_click = function(e) {
+    "use strict";
     var iconIndex = parseInt(e.currentTarget.get('id').replace("gridsection-", ""));
     e.preventDefault();
     this.select_topic(iconIndex);
@@ -81,7 +84,9 @@ M.format_grid.icon_click = function(e) {
 
 
 M.format_grid.select_topic = function(topic_no) {
+    "use strict";
     if ((this.editing_on == true) && (this.update_capability == true)) {
+        console.log(topic_no);
         document.getElementById("section-"+topic_no).style.display = "";
         window.scroll(0,document.getElementById("section-"+topic_no).offsetTop);
     } else {
@@ -102,6 +107,7 @@ M.format_grid.select_topic = function(topic_no) {
 M.format_grid.shadebox.shadebox_open;
 
 M.format_grid.shadebox.initialize_shadebox = function() {
+    "use strict";
     this.shadebox_open = false;
     this.hide_shadebox();
 
@@ -118,29 +124,33 @@ M.format_grid.shadebox.initialize_shadebox = function() {
 }
 
 M.format_grid.shadebox.toggle_shadebox = function() {
-    if (M.format_grid.shadebox.shadebox_open) {
-        M.format_grid.shadebox.hide_shadebox();
-        M.format_grid.shadebox.shadebox_open = false;
+    "use strict";
+    if (this.shadebox_open) {
+        this.hide_shadebox();
+        this.shadebox_open = false;
         window.scrollTo(0, 0);
     } else {
-        M.format_grid.shadebox.show_shadebox();
-        M.format_grid.shadebox.shadebox_open = true;
+        this.show_shadebox();
+        this.shadebox_open = true;
     }
 }
 
 M.format_grid.shadebox.show_shadebox = function() {
-    M.format_grid.shadebox.update_shadebox();
+    "use strict";
+    this.update_shadebox();
     document.getElementById("shadebox").style.display = "";
-    M.format_grid.shadebox.update_shadebox();
+    this.update_shadebox();
 }
 
 M.format_grid.shadebox.hide_shadebox = function() {
+    "use strict";
     document.getElementById("shadebox").style.display = "none";
 }
 
 // Code from quirksmode.org.
 // Author unknown.
 M.format_grid.shadebox.get_page_size = function() {
+    "use strict";
     var xScroll, yScroll;
     if(window.innerHeight && window.scrollMaxY) {
         xScroll = document.body.scrollWidth;
@@ -166,6 +176,7 @@ M.format_grid.shadebox.get_page_size = function() {
     }
 
     // For small pages with total height less than height of the viewport.
+    var pageHeight;
     if(yScroll < windowHeight) {
         pageHeight = windowHeight;
     } else {
@@ -173,17 +184,18 @@ M.format_grid.shadebox.get_page_size = function() {
     }
 
     // For small pages with total width less than width of the viewport.
+    var pageWidth;
     if(xScroll < windowWidth) {
         pageWidth = windowWidth;
     } else {
         pageWidth = xScroll;
     }
 
-    arrayPageSize = new Array(pageWidth, pageHeight, windowWidth, windowHeight);
-    return arrayPageSize;
+    return new Array(pageWidth, pageHeight, windowWidth, windowHeight);
 }
 
 M.format_grid.shadebox.update_shadebox = function() {
+    "use strict";
     // Make the overlay fullscreen (width happens automatically, so just update the height).
     var overlay = document.getElementById("shadebox_overlay");
     var pagesize = this.get_page_size();
