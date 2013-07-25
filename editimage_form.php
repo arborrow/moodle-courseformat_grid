@@ -1,81 +1,54 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once("$CFG->libdir/formslib.php");
+/**
+ * Grid Format - A topics based format that uses a grid of user selectable images to popup a light box of the section.
+ *
+ * @package    course/format
+ * @subpackage grid
+ * @copyright  &copy; 2012 G J Barnard in respect to modifications of standard topics format.
+ * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @author     Based on code originally written by Paul Krix and Julian Ridden.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-class image_form extends moodleform {
-    function definition() {
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once("{$CFG->libdir}/formslib.php");
+
+class grid_image_form extends moodleform {
+    public function definition() {
         $mform = $this->_form;
         $instance = $this->_customdata;
 
-        // visible elements
-        //$mform->addElement('filemanager', 'newfile', get_string('uploadafile'));
-        //$mform->addElement('filemanager', 'files_filemanager', get_string('uploadafile'), null, $instance['options']);
-        $mform->addElement('filepicker', 'assignment_file', get_string('uploadafile'), null, $instance['options']);
+        // Visible elements.
+        $mform->addElement('filepicker', 'icon_file',
+            get_string('uploadafile'), null, $instance['options']);
 
-        // hidden params
+        // Hidden params.
         $mform->addElement('hidden', 'contextid', $instance['contextid']);
         $mform->setType('contextid', PARAM_INT);
         $mform->addElement('hidden', 'userid', $instance['userid']);
         $mform->setType('userid', PARAM_INT);
         $mform->addElement('hidden', 'sectionid', $instance['sectionid']);
-        $mform->setType('sectionid', PARAM_INT);         
+        $mform->setType('sectionid', PARAM_INT);
         $mform->addElement('hidden', 'action', 'uploadfile');
         $mform->setType('action', PARAM_ALPHA);
 
-        // buttons
+        // Buttons:...
         $this->add_action_buttons(true, get_string('savechanges', 'admin'));
     }
 }
-
-
-?>
-<?php
-
-/*
-require_once("$CFG->libdir/formslib.php");
- 
-class image_form extends moodleform {
- 
-    function definition() {
-        global $USER, $CFG, $DB;
-
-        $mform = $this->_form;
-
-        $course      = $this->_customdata['course']; // this contains the data of this form
-        $data      	 = $this->_customdata['data'];
-        $options     = $this->_customdata['options'];
-
-         				
- 		
-		//$mform->addElement(type, id, title_string, ?, options e.g: array('maxbytes' => $maxbytes, 'accepted_types' => '*')); 
-		$mform->addElement('filemanager', 'userfile_filemanager', get_string('file'), null, $options);
-        $mform->addElement('hidden', 'returnurl', $data->returnurl);
-		
-        $this->add_action_buttons(true, get_string('savechanges'));
-        $this->set_data($data);
-        
-        
-        
-*/
-/*
-        $mform = $this->_form;
-
-        $data    = $this->_customdata['data'];
-        $options = $this->_customdata['options'];
-
-        $mform->addElement('filemanager', 'files_filemanager', get_string('files'), null, $options);
-        $mform->addElement('hidden', 'returnurl', $data->returnurl);
-
-        $this->add_action_buttons(true, get_string('savechanges'));
-
-        $this->set_data($data); 
-*/       
-/*
-		
-    }                           // Close the function
-
-}                               // Close the class
-*/
-
-
-?>

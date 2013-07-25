@@ -1,234 +1,335 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
 //
-function grid_format_get_icon(&$course, $sectionid, $sectionnumber = 0) {
-    global $CFG, $DB;
-        
-    if (!$sectionid) {
-        return false;
-    }
-    if (! $sectionicon = $DB->get_record('course_grid_icon', array('sectionid' => $sectionid))) {
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-        $newicon                = new stdClass();
-        $newicon->sectionid     = $sectionid;
-               
-        if (!$newicon->id = $DB->insert_record('course_grid_icon', $newicon)) {
-            error('Could not create icon. Grid format database is not ready. An admin must visit the notification section.');
+/**
+ * Grid Format - A topics based format that uses a grid of user selectable images to popup a light box of the section.
+ *
+ * @package    course/format
+ * @subpackage grid
+ * @copyright  &copy; 2012 G J Barnard in respect to modifications of standard topics format.
+ * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @author     Based on code originally written by Paul Krix and Julian Ridden.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/course/format/lib.php'); // For format_base.
+
+class format_grid extends format_base {
+
+    /**
+     * Returns the format's settings and gets them if they do not exist.
+     * @return type The settings as an array.
+     */
+    public function get_settings() {
+        if (empty($this->settings) == true) {
+            $this->settings = $this->get_format_options();
         }
-        $sectionicon = false;
+        return $this->settings;
     }
-    
-    return $sectionicon;
-}
 
-//get section icon, if it doesnt exist create it.
-function get_summary_visibility($course) {
-    
-    global $CFG, $DB;
-    if (! $summary_status = $DB->get_record('course_grid_summary', array('course_id' => $course))) {
-
-        $new_status                = new stdClass();
-        $new_status->course_id     = $course;
-        $new_status->show_summary  = 1;
-               
-        if (!$new_status->id = $DB->insert_record('course_grid_summary', $new_status)) {
-            error('Could not set summary status. Grid format database is not ready. An admin must visit the notification section.');
+    /**
+     * Gets the name for the provided section.
+     *
+     * @param stdClass $section The section.
+     * @return string The section name.
+     */
+    public function get_section_name($section) {
+        $course = $this->get_course();
+        $section = $this->get_section($section);
+        if (!empty($section->name)) {
+            return format_string($section->name, true, array('context' => get_context_instance(CONTEXT_COURSE, $course->id)));
+        } if ($section->section == 0) {
+            return get_string('topic0', 'format_grid');
+        } else {
+            return get_string('topic', 'format_grid') . ' ' . $section->section;
         }
-        $summary_status = $new_status;
     }
-    
-    return $summary_status;
-}
 
-//Checks whether there has been new activity in section $section
-function new_activity($section, $course, $mods) {
-    global $CFG, $USER, $DB;
-    
-    // Check for unread activities. Borrowed from core code in a rush and doesn't
-    // work exactly as expected. Needs some work, maybe a rewrite.
-    $new_activity = false;
-    if (isset($USER->lastcourseaccess[$course->id])) {
-        $course->lastaccess = $USER->lastcourseaccess[$course->id];
-    } else {
-        $course->lastaccess = 0;
-    }
-    
-    $htmlarray = array();
-    $sectionmods = explode(",", $section->sequence);
-    foreach($sectionmods as $modnumber) {
-        $mod = $mods[$modnumber];
-        if (file_exists($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php')) {
-            include_once($CFG->dirroot.'/mod/'.$mod->modname.'/lib.php');
-            $fname = $mod->modname.'_print_overview';
-            if (function_exists($fname)) {
-                $fname(array($course->id => $course),$htmlarray);
-            }
-        }
-
-    }
-    
-    if(!empty($htmlarray)) {
+    /**
+     * Indicates this format uses sections.
+     *
+     * @return bool Returns true
+     */
+    public function uses_sections() {
         return true;
     }
-    //Checks logs to see if section has been updated since last login.
-    //This cause semi-unexpected behaviour if you're already logged in when it happens
-    //in that it will show up for your current log in AND the following log in.
-    $sql = "SELECT url FROM $CFG->prefix"."log WHERE course = :courseid AND time > :lastaccess AND action = :edit";
-    $params = array("courseid" => $course->id, "lastaccess"=>$course->lastaccess, "edit"=>"editsection");
-    $activity = $DB->get_records_sql($sql, $params);
-    foreach($activity as $url_obj) {
-        $list = explode('=', $url_obj->url);
-        if($section->id == $list[1]) {
-            return true;
+
+    /**
+     * The URL to use for the specified course (with section)
+     *
+     * @param int|stdClass $section Section object from database or just field course_sections.section
+     *     if omitted the course view page is returned
+     * @param array $options options for view URL. At the moment core uses:
+     *     'navigation' (bool) if true and section has no separate page, the function returns null
+     *     'sr' (int) used by multipage formats to specify to which section to return
+     * @return null|moodle_url
+     */
+    public function get_view_url($section, $options = array()) {
+        $course = $this->get_course();
+        $url = new moodle_url('/course/view.php', array('id' => $course->id));
+
+        $sr = null;
+        if (array_key_exists('sr', $options)) {
+            $sr = $options['sr'];
         }
-    }
-    return $new_activity;
-}
-
-//Alias for get_dom_tree() to maintain sensible function call names.
-function parse_dom($html) { 
-    return get_dom_tree($html); //domparser.php
-}
-
-//Attempts to return a 40 character title for the section icon.
-//If section names are set, they are used. Otherwise it scans the summary
-//for what looks like the first line.
-function get_title($section) {
-
-    if($section->name != NULL && strlen(trim($section->name)) != 0) {
-        $title = $section->name;
-    } else {
-        $html = $section->summary;
-        $title = scan_tag($html, 0);
-    }
-
-    if(strlen($title) > 40) {
-        $title = substr($title, 0, 40);
-    }
-
-    return $title;
-
-}
-
-function scan_tag($text, $position) {
-    $terminal_tags = array('P', 'H1', 'H2', 'H3', 'DIV', 'p', 'h1', 'h2', 'h3', 'div'); //tags that create a newline when they close
-
-    $title = '';
-
-    
-    while(true) {
-    
-        if($position >= strlen($text)) {
-            return $title;
-        }
-
-        //Find the start of the next tag
-        $tag_start = strpos($text, '<', $position);
-        if($tag_start === false) { //if none, return everything         
-            return $title . trim(substr($text, $position));
-        }
-        
-        //Add everything before the tag to the title
-        $contents = '';     
-        if($tag_start > $position) {
-            $contents = substr($text, $position, $tag_start-$position);
-        }
-        $title .= trim($contents);
-        
-        
-        //Find the end of that tag      
-        $tag_end = find_tag_end($text, $tag_start+1);
-        if($tag_end === false) { //if none, return what we have so far
-            return $title;
-        }   
-        
-        //Determine tag name:
-        //is it a closing tag?
-        $tag_name;
-        if($text{$tag_start+1} == "/") {
-            $tag_name = get_tag_name($text, $tag_start+2, $tag_end); 
-            if(in_array($tag_name, $terminal_tags)) { //check if it a newline tag
-                if(strlen($title) != 0) {
-                    return $title;
-                }
-            }
-        } else {        
-            $tag_name = get_tag_name($text, $tag_start+1, $tag_end);
-            if($tag_name == 'BR' || $tag_name == 'br') { //the only newline tag that isn't a closing tag
-            
-                if(strlen($title) != 0) {
-                    return $title;
-                }
-            }
-        }
-        
-        $position = $tag_end+1;
-        
-    }
-    return $title;
-
-}
-
-//Finds the '>' part of a tag. Assumes $start is the character AFTER the '<' character
-//Returns the position of the end tag, or false if none is found
-
-function find_tag_end($text, $position) { 
-    $in_quotes = true;
-    while($in_quotes) { 
-        $end_tag_pos = strpos($text, ">", $position);
-        if($end_tag_pos === false) {
-            return false;
-        }   
-    
-        //Make sure the '>' isn't within quotes.    
-        $quotes_end = check_quotes($text, $position, $end_tag_pos);
-        if($quotes_end > -1) {
-            $position = $quotes_end+1;
-        } else if($quotes_end === false) {
-            return false;
+        if (is_object($section)) {
+            $sectionno = $section->section;
         } else {
-            $in_quotes = false;
+            $sectionno = $section;
         }
+        if ($sectionno !== null) {
+            if ($sr !== null) {
+                if ($sr) {
+                    $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
+                    $sectionno = $sr;
+                } else {
+                    $usercoursedisplay = COURSE_DISPLAY_SINGLEPAGE;
+                }
+            } else {
+                $usercoursedisplay = $course->coursedisplay;
+            }
+            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
+                $url->param('section', $sectionno);
+            } else {
+                if (!empty($options['navigation'])) {
+                    return null;
+                }
+                $url->set_anchor('section-' . $sectionno);
+            }
+        }
+        return $url;
     }
-    return $end_tag_pos;
-}   
 
+    /**
+     * Returns the information about the ajax support in the given source format
+     *
+     * The returned object's property (boolean)capable indicates that
+     * the course format supports Moodle course ajax features.
+     * The property (array)testedbrowsers can be used as a parameter for {@link ajaxenabled()}.
+     *
+     * @return stdClass
+     */
+    public function supports_ajax() {
+        $ajaxsupport = new stdClass();
+        $ajaxsupport->capable = true;
+        $ajaxsupport->testedbrowsers = array('MSIE' => 8.0, 'Gecko' => 20061111, 'Opera' => 9.0, 'Safari' => 531, 'Chrome' => 6.0);
+        return $ajaxsupport;
+    }
 
-function check_quotes($text, $position, $limit) {
-    //Checks to see if there are open quotes between $start and $limit
-    $single_s = strpos($text, '\'', $position);
-    $double_s = strpos($text, '"', $position);  
-    
-    //quotes don't interfere
-    if( !$single_s && !$double_s 
-        || (!$single_s && $double_s > $limit)
-        || (!$double_s && $single_s > $limit)
-        || ($double_s > $limit && $single_s > $limit)
-        ) {
-        return -1;
+    /**
+     * Custom action after section has been moved in AJAX mode
+     *
+     * Used in course/rest.php
+     *
+     * @return array This will be passed in ajax respose
+     */
+    public function ajax_section_move() {
+        global $PAGE;
+        $titles = array();
+        $course = $this->get_course();
+        $modinfo = get_fast_modinfo($course);
+        $renderer = $this->get_renderer($PAGE);
+        if ($renderer && ($sections = $modinfo->get_section_info_all())) {
+            foreach ($sections as $number => $section) {
+                $titles[$number] = $renderer->section_title($section, $course);
+            }
+        }
+        return array('sectiontitles' => $titles, 'action' => 'move');
     }
-    
-    if(!$single_s || $double_s < $single_s) {
-        return strpos($text, '"', $double_s+1);
+
+    /**
+     * Returns the list of blocks to be automatically added for the newly created course
+     *
+     * @return array of default blocks, must contain two keys BLOCK_POS_LEFT and BLOCK_POS_RIGHT
+     *     each of values is an array of block names (for left and right side columns)
+     */
+    public function get_default_blocks() {
+        return array(
+            BLOCK_POS_LEFT => array(),
+            BLOCK_POS_RIGHT => array('search_forums', 'news_items', 'calendar_upcoming', 'recent_activity')
+        );
     }
-    
-    if(!$double_s || $single_s < $double_s) {
-        return strpos($text, '\'', $single_s+1);
+
+    /**
+     * Definitions of the additional options that this course format uses for course
+     *
+     * Grid format uses the following options (until extras are migrated):
+     * - coursedisplay
+     * - numsections
+     * - hiddensections
+     *
+     * @param bool $foreditform
+     * @return array of options
+     */
+    public function course_format_options($foreditform = false) {
+        static $courseformatoptions = false;
+
+        if ($courseformatoptions === false) {
+            $courseconfig = get_config('moodlecourse');
+            $courseformatoptions = array(
+                'numsections' => array(
+                    'default' => $courseconfig->numsections,
+                    'type' => PARAM_INT,
+                ),
+                'hiddensections' => array(
+                    'default' => $courseconfig->hiddensections,
+                    'type' => PARAM_INT,
+                ),
+                'coursedisplay' => array(
+                    'default' => $courseconfig->coursedisplay,
+                    'type' => PARAM_INT,
+                )
+            );
+        }
+        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
+            global $USER;
+            $courseconfig = get_config('moodlecourse');
+            $sectionmenu = array();
+            for ($i = 0; $i <= $courseconfig->maxsections; $i++) {
+                $sectionmenu[$i] = "$i";
+            }
+            $courseformatoptionsedit = array(
+                'numsections' => array(
+                    'label' => new lang_string('numbersections', 'format_grid'),
+                    'element_type' => 'select',
+                    'element_attributes' => array($sectionmenu),
+                ),
+                'hiddensections' => array(
+                    'label' => new lang_string('hiddensections'),
+                    'help' => 'hiddensections',
+                    'help_component' => 'moodle',
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            0 => new lang_string('hiddensectionscollapsed'),
+                            1 => new lang_string('hiddensectionsinvisible')
+                        )
+                    ),
+                ),
+                'coursedisplay' => array(
+                    'label' => new lang_string('coursedisplay'),
+                    'element_type' => 'select',
+                    'element_attributes' => array(
+                        array(
+                            COURSE_DISPLAY_SINGLEPAGE => new lang_string('coursedisplay_single'),
+                            COURSE_DISPLAY_MULTIPAGE => new lang_string('coursedisplay_multi')
+                        )
+                    ),
+                    'help' => 'coursedisplay',
+                    'help_component' => 'moodle',
+                )
+            );
+            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
+        }
+        return $courseformatoptions;
     }
-    
-    return -1;
+
+    // Grid specific methods...
+    public function grid_moodle_url($url, array $params = null) {
+        return new moodle_url('/course/format/grid/' . $url, $params);
+    }
+
+    public function is_empty_text($text) {
+        return empty($text) ||
+                preg_match('/^(?:\s|&nbsp;)*$/si', htmlentities($text, 0 /* ENT_HTML401 */, 'UTF-8', true));
+    }
+
+    public function grid_get_icon($courseid, $sectionid) {
+        global $CFG, $DB;
+
+        if ((!$courseid) || (!$sectionid)) {
+            return false;
+        }
+
+        if (!$sectionicon = $DB->get_record('format_grid_icon', array('sectionid' => $sectionid))) {
+
+            $newicon = new stdClass();
+            $newicon->sectionid = $sectionid;
+            $newicon->courseid = $courseid;
+
+            if (!$newicon->id = $DB->insert_record('format_grid_icon', $newicon, true)) {
+                throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                        'Could not create icon. Grid format database is not ready. An admin must visit the notifications section.');
+            }
+            $sectionicon = false;
+        }
+        return $sectionicon;
+    }
+
+    /**
+     * Get section icon, if it doesnt exist create it.
+     */
+    public function get_summary_visibility($course) {
+        global $CFG, $DB;
+        if (!$summary_status = $DB->get_record('format_grid_summary', array('courseid' => $course))) {
+            $new_status = new stdClass();
+            $new_status->courseid = $course;
+            $new_status->showsummary = 1;
+
+            if (!$new_status->id = $DB->insert_record('format_grid_summary', $new_status)) {
+                throw new moodle_exception('invalidrecordid', 'format_grid', '',
+                    'Could not set summary status. Grid format database is not ready. An admin must visit the notifications section.');
+            }
+            $summary_status = $new_status;
+        }
+        return $summary_status;
+    }
 }
 
-function get_tag_name($html, $start, $end) {
-    //Finds a tags name. Assumes start is character AFTER the '<' character
+/**
+ * Indicates this format uses sections.
+ *
+ * @return bool Returns true
+ */
+function callback_grid_uses_sections() {
+    return true;
+}
 
-    $space_pos = strpos($html, ' ', $start);
-    $end_name_pos = $space_pos;
-    if($space_pos === false || $end < $space_pos) {
-        $end_name_pos = $end;   
-    }
+/**
+ * Used to display the course structure for a course where format=grid
+ *
+ * This is called automatically by {@link load_course()} if the current course
+ * format = weeks.
+ *
+ * @param array $path An array of keys to the course node in the navigation
+ * @param stdClass $modinfo The mod info object for the current course
+ * @return bool Returns true
+ */
+function callback_grid_load_content(&$navigation, $course, $coursenode) {
+    return $navigation->load_generic_course_sections($course, $coursenode, 'grid');
+}
 
-    $tag_name = substr($html, $start, ($end_name_pos - $start));
-    return $tag_name;
-}   
-    
-?>
+/**
+ * The string that is used to describe a section of the course
+ * e.g. Topic, Week...
+ *
+ * @return string
+ */
+function callback_grid_definition() {
+    return get_string('topic', 'format_grid');
+}
+
+/**
+ * Deletes the settings entry for the given course upon course deletion.
+ */
+function format_grid_delete_course($courseid) {
+    global $DB;
+
+    $DB->delete_records("format_grid_icon", array("courseid" => $courseid));
+    $DB->delete_records("format_grid_summary", array("courseid" => $courseid));
+}

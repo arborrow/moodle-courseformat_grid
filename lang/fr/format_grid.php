@@ -25,29 +25,22 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['display_summary'] = 'move out of grid';
-$string['display_summary_alt'] = 'Move this topic out of the grid';
-$string['editimage'] = 'Change image';
-$string['editimage_alt'] = 'Set or change image';
-$string['formatgrid'] = 'Grid format'; // Name to display for format.
-$string['general_information'] = 'General Information';
-$string['hidden_topic'] = 'This topic has been hidden';
-$string['hide_summary'] = 'move topic into grid';
-$string['hide_summary_alt'] = 'Move this topic into the grid';
-$string['namegrid'] = 'Grid view'; // Name of a topic within your format.
-$string['pluginname'] = 'Grid format';
-$string['title'] = 'Topic title';
-$string['topic'] = 'Topic';
-$string['topic0'] = 'General';
-$string['topicoutline'] = 'Topic';
+$string['namegrid']='Vue en image'; // Name of a section within your format.
+$string['formatgrid']='Vue en image'; // Name to display for format.
 
-// Moodle 2.3 Enhancement.
-$string['hidefromothers'] = 'Hide topic';
-$string['showfromothers'] = 'Show topic';
-$string['currentsection'] = 'This topic';
+$string['sectionname'] = 'Section';
+$string['pluginname'] = 'Vue en image';
 
-// Moodle 2.4 Course format refactoring - MDL-35218.
-$string['numbersections'] = 'Number of topics';
+$string['hide_summary'] = 'mettre la section en mode image';
+$string['display_summary'] = 'sortir du mode image';
+$string['hide_summary_alt'] = 'Mettre cette section en mode image';
+$string['display_summary_alt'] = 'Sortir cette section du mode image';
 
-// Image did not convert.
-$string['imagecannotbeusedasanicon'] = 'Image cannot be used as an icon, must be a Gif, Jpg or Png and the GD PHP library installed.';
+$string['editimage'] = 'Modifier';
+$string['title'] = 'Titre de la section';
+$string['image'] = 'Image de la section';
+$string['titlealreadyexist'] = 'le titre $a existe déjà. Merci de le modifier.';
+$string['updatesection'] = 'Modifier la section';
+$string['topicoutline'] = 'Section';
+
+$string['section0name'] = 'Général';

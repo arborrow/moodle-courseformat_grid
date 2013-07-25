@@ -1,372 +1,79 @@
-<style type="text/css" media="screen">
-/* <![CDATA[ */
-    @import url(<?php echo $CFG->wwwroot ?>/course/format/grid/grid.css);
-/* ]]> */
-</style>
-
-<?php // $Id: format.php
-
-require_once(dirname(__FILE__) . '/lib.php');     // for grid course format.
-
-$streditsummary  = get_string('editsummary');
-$stradd          = get_string('add');
-$stractivities   = get_string('activities');
-$strshowallweeks = get_string('showallweeks');
-$strweek         = get_string('week');
-$strgroups       = get_string('groups');
-$strgroupmy      = get_string('groupmy');
-$editing         = $PAGE->user_is_editing();
-
-if ($editing) {
-    $strstudents = moodle_strtolower($course->students);
-    $strweekhide = get_string('weekhide', '', $strstudents);
-    $strweekshow = get_string('weekshow', '', $strstudents);
-    $strmoveup   = get_string('moveup');
-    $strmovedown = get_string('movedown');
-}
-
-$context = get_context_instance(CONTEXT_COURSE, $course->id);
-
-require_js($CFG->wwwroot.'/course/format/grid/jslib.js');
-    
-/* Internet Explorer min-width fix. (See theme/standard/styles_layout.css: min-width for Firefox.)
-   Window width: 800px, Firefox 763px, IE 752px. (Window width: 640px, Firefox 602px, IE 588px.)    
-*/
-    
-?>
-
-<!--[if IE]>
-  <style type="text/css">
-  .weekscss-format { width: expression(document.body.clientWidth < 800 ? "752px" : "auto"); }
-  </style>
-<![endif]-->
 <?php
-/// Layout the whole page as three big columns (was, id="layout-table")
-echo '<div class="weekscss-format">';
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/// The left column ...
-$has_left_col = false;
-if (blocks_have_content($pageblocks, BLOCK_POS_LEFT) || $editing) {
-    $has_left_col = true;
-    echo '<div id="left-column">';
-    blocks_print_group($PAGE, $pageblocks, BLOCK_POS_LEFT);
-    echo '</div>';
+/**
+ * Grid Format - A topics based format that uses a grid of user selectable images to popup a light box of the section.
+ *
+ * @package    course/format
+ * @subpackage grid
+ * @copyright  &copy; 2012 G J Barnard in respect to modifications of standard topics format.
+ * @author     G J Barnard - gjbarnard at gmail dot com and {@link http://moodle.org/user/profile.php?id=442195}
+ * @author     Based on code originally written by Paul Krix and Julian Ridden.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->libdir . '/completionlib.php');
+
+// Horrible backwards compatible parameter aliasing..
+if ($topic = optional_param('topic', 0, PARAM_INT)) { // Topics and Grid old section parameter.
+    $url = $PAGE->url;
+    $url->param('section', $topic);
+    debugging('Outdated topic / grid param passed to course/view.php', DEBUG_DEVELOPER);
+    redirect($url);
+}
+if ($ctopic = optional_param('ctopics', 0, PARAM_INT)) { // Collapsed Topics old section parameter.
+    $url = $PAGE->url;
+    $url->param('section', $ctopic);
+    debugging('Outdated collapsed topic param passed to course/view.php', DEBUG_DEVELOPER);
+    redirect($url);
+}
+if ($week = optional_param('week', 0, PARAM_INT)) { // Weeks old section parameter.
+    $url = $PAGE->url;
+    $url->param('section', $week);
+    debugging('Outdated week param passed to course/view.php', DEBUG_DEVELOPER);
+    redirect($url);
+}
+// End backwards-compatible aliasing..
+
+$context = context_course::instance($course->id);
+
+if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
+    $course->marker = $marker;
+    course_set_marker($course->id, $marker);
 }
 
-/// The right column, BEFORE the middle-column.
-$has_right_col = false;
-if (blocks_have_content($pageblocks, BLOCK_POS_RIGHT) || $editing) {
-    $has_right_col = true;
-    echo '<div id="right-column">';
-    blocks_print_group($PAGE, $pageblocks, BLOCK_POS_RIGHT);
-    echo '</div>';
+// Make sure all sections are created.
+$courseformat = course_get_format($course);
+$course = $courseformat->get_course();
+course_create_sections_if_missing($course, range(0, $course->numsections));
+
+$renderer = $PAGE->get_renderer('format_grid');
+
+if (!empty($displaysection)) {
+    $renderer->print_single_section_page($course, null, null, null, null, $displaysection);
+} else {
+    $renderer->print_multiple_section_page($course, null, null, null, null);
 }
 
-/// Start main column
-$main_column_class = 'class="';
-if(!$has_right_col) {
-    $main_column_class .= 'no_right_bar ';
-}
-if(!$has_left_col) {
-    $main_column_class .= 'no_left_bar ';
-}
-$main_column_class .= '"';
-echo '<div id="middle-column" '. $main_column_class .'>'. skip_main_destination();
+// Initialise the functionality:...
+$PAGE->requires->js_init_call('M.format_grid.init', array(
+    $PAGE->user_is_editing(),
+    has_capability('moodle/course:update', $context)));
 
-print_heading_block($course->fullname . '', '');
-
-$summary_status = get_summary_visibility($course->id);
-if($summary_status->show_summary == 1) {
-    /// Section 0 gets placed at the top.
-
-    $section = 0;
-    $thissection = $sections[$section];
-        
-    if ($thissection->summary or $thissection->sequence or isediting($course->id)) {
-        echo '<ul class="weekscss">'."\n";
-        echo '<li id="section-0" class="section main">';
-        echo '<div class="right side">&nbsp;</div>';
-    
-        echo '<div class="content">';
-    
-        echo '<div class="summary">';
-        $summaryformatoptions->noclean = true;
-        echo format_text($thissection->summary, FORMAT_HTML, $summaryformatoptions);
-    
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-            echo '<p><a title="'.$streditsummary.'" '.
-                 ' href="editsection.php?id='.$thissection->id.'"><img src="'.$OUTPUT->pix_url('t/edit') . '" '.
-                 ' class="icon edit" alt="'.$streditsummary.'" /></a></p>';
-        }
-        echo '</div>';
-    
-        print_section($course, $thissection, $mods, $modnamesused);
-    
-        if (isediting($course->id)) {
-            print_section_add_menus($course, $section, $modnames);
-            echo ' <a title="'.get_string('hide_summary_alt','format_grid').'" href="format/grid/mod_summary.php?sesskey='.sesskey().'&amp;course='.$course->id.'&amp;showsummary=0">'.
-                 '<img src="format/grid/images/into_grid.png" alt="'.get_string('hide_summary_alt','format_grid').'" /> '.get_string('hide_summary','format_grid').' </a>';
-        }
-    
-        echo '</div>';
-        echo '</li>';
-        echo '</ul>';
-    }
-}
-
-/// Print all of the icons.
-
-echo '<div id="iconContainer">'."\n";
-echo '<ul class="icons">'."\n";
-
-$section = 0; //start at 1 to skip the summary block
-if($summary_status->show_summary == 1) {
-    $section = 1; //or include the summary block if it's in the grid display
-}
-$sectionmenu = array();
-
-while ($section <= $course->numsections) {
-
-    if (!empty($sections[$section])) {
-        $thissection = $sections[$section];
-    } else {
-        // Create a new section structure
-        unset($thissection);
-        $thissection->course = $course->id;
-        $thissection->section = $section;
-        $thissection->summary = 'Course Topic ' . $section ."<br />";
-        $thissection->visible = 1;
-        if (!$thissection->id = insert_record('course_sections', $thissection)) {
-            notify('Error inserting new topic!');
-        }
-        $sections[$section] = $thissection;
-    }
-
-    //check if course is visible to user, if so show course
-    $showsection = (has_capability('moodle/course:viewhiddensections', $context) or $thissection->visible or !$course->hiddensections);
-
-    if ($showsection) {
-
-        $new_activity = new_activity($thissection, $course, $mods);
-        $sectionicon = grid_format_get_icon($course, $thissection->id, $section, $mods);
-        $strtitle = "";
-        if($section == 0) {
-            $strtitle = get_title($thissection);
-            if($strtitle == '&nbsp;' || strlen(trim($strtitle)) == 0) {
-                $strtitle = "General Information";
-            }
-        } else {
-            $strtitle = get_title($thissection);
-        }
-
-        //Get the module icon
-
-        if (isediting($course->id) && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-            $onclickevent = 'select_topic_edit(event, '.$thissection->section.')';
-        } else {
-            $onclickevent = 'select_topic(event, '.$thissection->section.')';
-        }
-
-        echo '<li> <a href="#section-'.$thissection->section.'" class="icon_link" onclick="'. $onclickevent .'"><p class="icon_content">' . $strtitle.'</p>';
-        if($new_activity) {
-            echo '<img class="new_activity" src="'.$url = $CFG->wwwroot.'/course/format/grid/images/new_activity.png" />';
-        }
-        echo '<div class="image_holder">';   
-        
-        
-        if($sectionicon && $sectionicon->imagepath) {
-            echo '<img src="'.$url = $CFG->wwwroot . '/pluginfile.php/' . $context->id . '/course/section/' . $thissection->id . 
-            '/' . $sectionicon->imagepath .'"/>'; 
-        } else if($section == 0) {
-            echo '<img src="'.$url = $CFG->wwwroot.'/course/format/grid/info.png">';
-        }        
-/*
-        if($sectionicon->imagepath) {    
-            echo '<img src="'.$url = $CFG->wwwroot . '/pluginfile.php/' . $context->id . '/course/section/' . $thissection->id . 
-        '/' . $sectionicon->imagepath .'"/>'; 
-        }
-*/
-                
-        echo "</div></a>";
-        if (isediting($course->id) && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-            //echo ' <a title="'.get_string('editimage','format_grid').'" href="format/grid/editimage.php?id='.$sectionicon->id.'">'.
-            echo ' <a title="'.get_string('editimage','format_grid').'" href="format/grid/editimage.php?sectionid='.$thissection->id.'&contextid='.$context->id.'&userid='.$USER->id.'">'.
-                 '<img src="'.$OUTPUT->pix_url('t/edit').'" alt="'.get_string('editimage','format_grid').'" /> change image</a>';                    
-            if($section == 0) {
-                echo ' <a title="'.get_string('display_summary_alt','format_grid').'" href="format/grid/mod_summary.php?sesskey='.sesskey().'&amp;course='.$course->id.'&amp;showsummary=1">'.
-                     '<img src="format/grid/images/out_of_grid.png" alt="'.get_string('display_summary_alt','format_grid').'" /> '.get_string('display_summary','format_grid').' </a>';
-            }
-        }
-        echo "</li>";
-
-    }        
-    $section++;     
-}
-
-echo '</ul>'."\n";  
-echo '</div>'."\n"; 
-
-// Note, an ordered list would confuse - "1" could be the clipboard or summary.
-
-echo '<div id="shadebox">';
-echo '<div id="shadebox_overlay" style="display:none;" onclick="toggle_shadebox();"></div>';
-//echo '<div id="shadebox_overlay" style="display:none;"></div>';
-echo '<div id="shadebox_content">';
-echo '<img id="shadebox_close" style="display: none;" src="'.$CFG->wwwroot.'/course/format/grid/close.png" onclick="toggle_shadebox();">';
-
-echo '<ul class="weekscss">'."\n";
-
-/// If currently moving a file then show the current clipboard
-if (ismoving($course->id)) {
-    $stractivityclipboard = strip_tags(get_string('activityclipboard', '', addslashes($USER->activitycopyname)));
-    $strcancel= get_string('cancel');
-    echo '<li class="clipboard">';
-    echo $stractivityclipboard.'&nbsp;&nbsp;(<a href="mod.php?cancelcopy=true&amp;sesskey='.$USER->sesskey.'">'.$strcancel.'</a>)';
-    echo "</li>\n";
-}
-
-
-if($summary_status->show_summary == 0) {
-    $section = 0;
-
-    $thissection = $sections[$section];
-    
-    if ($thissection->summary or $thissection->sequence or isediting($course->id)) {
-        //echo '<ul class="weekscss">'."\n";
-        echo '<li id="section-0" class="section main grid_section">';
-        echo '<div class="right side">&nbsp;</div>';
-    
-        echo '<div class="content">';
-    
-        echo '<div class="summary">';
-        $summaryformatoptions->noclean = true;
-        echo format_text($thissection->summary, FORMAT_HTML, $summaryformatoptions);
-    
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-            echo '<p><a title="'.$streditsummary.'" '.
-                 ' href="editsection.php?id='.$thissection->id.'"><img src="'.$OUTPUT->pix_url('t/edit') . '" '.
-                 ' class="icon edit" alt="'.$streditsummary.'" /></a></p>';
-        }
-    
-        echo '</div>';
-    
-        print_section($course, $thissection, $mods, $modnamesused);
-    
-        if (isediting($course->id)) {
-            print_section_add_menus($course, $section, $modnames);
-        }
-    
-        echo '</div>';
-        echo '</li>';
-        //echo '</ul>';
-    }
-}
-
-
-/// Now all the normal modules by topic
-/// Everything below uses "section" terminology - each "section" is a topic/module. 
-
-$section = 1;
-$sectionmenu = array();
-
-while ($section <= $course->numsections) {
-
-    //if section doesnt exist create it. Set $thissection to point to it.
-    if (!empty($sections[$section])) {
-        $thissection = $sections[$section];
-
-    } else {
-        //Section should have been created in the icons section above. If it's empty then its an error.
-        unset($thissection);
-        notify('Error, section ' . $section . ' not found!');
-        $section++;        
-        continue;    
-    }
-
-    $showsection = (has_capability('moodle/course:viewhiddensections', $context) or $thissection->visible or !$course->hiddensections);
-           
-    if ($showsection) {
-
-        $currenttext = '';
-        if (!$thissection->visible) {
-            $sectionstyle = ' hidden';
-        } else {
-            $sectionstyle = '';
-        }
-
-        echo '<li id="section-'.$section.'" class="section main'.$sectionstyle.' grid_section" >';
-        // Note, 'right side' is BEFORE content.
-        echo '<div class="right side">';
-   
-        if ($PAGE->user_is_editing() && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-            if ($thissection->visible) {        // Show the hide/show eye
-                echo '<a href="view.php?id='.$course->id.'&amp;hide='.$section.'&amp;sesskey='.sesskey().'#section-'.$section.'" title="'.$strweekhide.'">'.
-                     '<img src="'.$OUTPUT->pix_url('i/hide') . '" class="icon hide" alt="'.$strweekhide.'" /></a><br />';
-            } else {
-                echo '<a href="view.php?id='.$course->id.'&amp;show='.$section.'&amp;sesskey='.sesskey().'#section-'.$section.'" title="'.$strweekshow.'">'.
-                     '<img src="'.$OUTPUT->pix_url('i/show') . '" class="icon hide" alt="'.$strweekshow.'" /></a><br />';
-            }
-            if ($section > 1) {                       // Add a arrow to move section up
-                echo '<a href="view.php?id='.$course->id.'&amp;random='.rand(1,10000).'&amp;section='.$section.'&amp;move=-1&amp;sesskey='.sesskey().'#section-'.($section-1).'" title="'.$strmoveup.'">'.
-                     '<img src="'.$OUTPUT->pix_url('t/up') . '" class="icon up" alt="'.$strmoveup.'" /></a><br />';
-            }
-
-            if ($section < $course->numsections) {    // Add a arrow to move section down
-                echo '<a href="view.php?id='.$course->id.'&amp;random='.rand(1,10000).'&amp;section='.$section.'&amp;move=1&amp;sesskey='.sesskey().'#section-'.($section+1).'" title="'.$strmovedown.'">'.
-                     '<img src="'.$OUTPUT->pix_url('t/down') . '" class="icon down" alt="'.$strmovedown.'" /></a><br />';
-            }
-        }   
-   
-        echo '</div>';
-
-        echo '<div class="content">';
-                                
-        if (has_capability('moodle/course:viewhiddensections', $context) or $thissection->visible) {  //if visible
-
-            echo '<div class="summary">';
-            $summaryformatoptions->noclean = true;
-            echo format_text($thissection->summary, FORMAT_HTML, $summaryformatoptions);
-
-            if (isediting($course->id) && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id))) {
-                echo ' <a title="'.$streditsummary.'" href="editsection.php?id='.$thissection->id.'">'.
-                     '<img src="'.$OUTPUT->pix_url('t/edit').'" class="icon edit" alt="'.$streditsummary.'" /></a><br /><br />';
-            }
-            echo '</div>';
-
-            print_section($course, $thissection, $mods, $modnamesused);
-
-            if (isediting($course->id)) {
-                print_section_add_menus($course, $section, $modnames);
-            }
-        } else {
-            $strtitle = get_title($thissection->summary);
-            echo '<h2>' . $strtitle . '</h2>';
-            echo '<p> This section has been hidden </p>';
-        }
-
-        echo '</div>';
-        echo "</li>\n";
-    }
-
-    $section++;
-}
-echo "</ul>\n";
-echo '</div></div>';
-
-if (!empty($sectionmenu)) {
-    echo '<div class="jumpmenu">';
-    echo popup_form($CFG->wwwroot.'/course/view.php?id='.$course->id.'&amp;', $sectionmenu,
-               'sectionmenu', '', get_string('jumpto'), '', '', true);
-    echo '</div>';
-}
-
-echo '</div>';
-
-echo '</div>';
-echo '<div class="clearer"></div>';
-
-if (!(isediting($course->id) && has_capability('moodle/course:update', get_context_instance(CONTEXT_COURSE, $course->id)))) {
-    echo '<script> hide_sections(); </script>';
-}
-
-?>
+// Include course format js module.
+$PAGE->requires->js('/course/format/grid/format.js');
